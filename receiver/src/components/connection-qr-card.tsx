@@ -4,6 +4,7 @@ import { IconCheckFilled, IconQrcode } from "@tabler/icons-solidjs";
 import { getConnectionUrl } from "core/utils/scanner-url";
 import { deviceId } from "core/stores/device";
 import { cn } from "core/utils/tw";
+import { t } from "core/i18n";
 
 type ConnectionQRCardProps = {
     newConnectionName?: string | null;
@@ -34,7 +35,7 @@ export function ConnectionQRCard(props: ConnectionQRCardProps) {
                     <img
                         src={qrCode()}
                         class="relative size-84 m-1 rounded-box"
-                        alt="Connection QR code"
+                        alt={t("connection.qrAlt")}
                     />
                 </div>
 
@@ -55,21 +56,21 @@ export function ConnectionQRCard(props: ConnectionQRCardProps) {
                     <>
                         <p class="font-medium animate-pulse flex items-center justify-center gap-2">
                             <IconQrcode class="size-4" />
-                            Waiting for connection
+                            {t("connection.waiting")}
                         </p>
                         <p class="text-sm text-base-content/60">
-                            Scan this QR code or visit{" "}
+                            {t("connection.scanQrPrefix")}{" "}
                             <a href={connUrl()} class="link link-primary">
-                                Linked Scanner
+                                {t("app.name")}
                             </a>{" "}
-                            on your mobile device to connect
+                            {t("connection.scanQrSuffix")}
                         </p>
                     </>
                 }
             >
                 <p class="font-medium flex items-center justify-center gap-2">
                     <IconCheckFilled class="size-4" />
-                    Connected to {props.newConnectionName}
+                    {t("connection.connectedTo", { name: props.newConnectionName ?? "" })}
                 </p>
             </Show>
         </div>

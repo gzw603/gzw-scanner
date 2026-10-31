@@ -3,12 +3,19 @@ import { createSignal } from "solid-js";
 import { makePersisted } from "@solid-primitives/storage";
 import { deviceId, deviceName } from "./device";
 import { addConnectionHistory, addScanSentHistory, addScanReceivedHistory } from "./history";
+import { normalizeKeyCombo, type InputEvent } from "../utils/input-events";
 
 // ===== types =====
 
 type ScanData = {
     type: "scan";
     content: string;
+    events: InputEvent[];
+};
+
+type KeyData = {
+    type: "key";
+    combo: string;
 };
 
 type HelloData = {
@@ -16,7 +23,7 @@ type HelloData = {
     name: string;
 };
 
-type Data = ScanData | HelloData;
+type Data = ScanData | KeyData | HelloData;
 
 type DataHandler = (conn: DataConnection, data: Data) => void;
 
@@ -59,7 +66,22 @@ const isValidData = (data: unknown): data is Data => {
     const d = data as { type: unknown };
 
     if (d.type === "scan") {
-        return "content" in data && typeof (data as { content: unknown }).content === "string";
+        const scan = data as { content?: unknown; events?: unknown };
+        return (
+            typeof scan.content === "string" &&
+            Array.isArray(scan.events) &&
+            scan.events.every(
+                (event) =>
+                    event !== null &&
+                    typeof event === "object" &&
+                    (("kind" in event && event.kind === "text" && "value" in event && typeof event.value === "string") ||
+                        ("kind" in event && event.kind === "key" && "combo" in event && typeof event.combo === "string")),
+            )
+        );
+    }
+
+    if (d.type === "key") {
+        return "combo" in data && typeof (data as { combo: unknown }).combo === "string";
     }
 
     if (d.type === "hello") {
@@ -101,7 +123,7 @@ const detachFromConnection = (conn: DataConnection) => {
 const trackReceivedScans = (conn: DataConnection) => {
     const handler = (data: unknown) => {
         if (isValidData(data) && data.type === "scan") {
-            addScanReceivedHistory(data.content, conn.peer);
+            addScanReceivedHistory(data.content, conn.peer, data.events);
         }
     };
     conn.on("data", handler);
@@ -228,14 +250,26 @@ const sendData = async (data: Data) => {
     await Promise.all(_connections().map((conn) => conn.send(data)));
 };
 
-export const sendScan = async (content: string) => {
+export const sendScan = async (content: string, events: InputEvent[]) => {
     await sendData({
         type: "scan",
         content,
+        events,
     });
 
     addScanSentHistory(
         content,
         _connections().map((c) => c.peer),
+        events,
     );
+};
+
+export const sendKey = async (combo: string) => {
+    const normalized = normalizeKeyCombo(combo);
+    if (!normalized) throw new Error("Invalid key combination");
+
+    await sendData({
+        type: "key",
+        combo: normalized,
+    });
 };

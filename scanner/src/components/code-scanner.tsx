@@ -3,6 +3,7 @@ import { IconCameraRotate } from "@tabler/icons-solidjs";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { NotFoundException } from "@zxing/library";
 import { createSignal, For, mergeProps, onCleanup, onMount, Show } from "solid-js";
+import { t } from "core/i18n";
 
 interface CodeScannerProps {
     onResult: (text: string) => void;
@@ -42,16 +43,19 @@ export default function CodeScanner(props: CodeScannerProps) {
     let busy = false;
     const tick = async () => {
         if (busy || !videoRef || !canvas || !ctx || videoRef.readyState < 2) return;
-        busy = true;
-
         const vw = videoRef.videoWidth;
         const vh = videoRef.videoHeight;
+        if (!vw || !vh) return;
+
         const container = videoRef.parentElement!;
         const cw = container.clientWidth;
         const ch = container.clientHeight;
+        if (!cw || !ch) return;
 
         // ponytail: scan area = center square of viewport, ratio configurable
         const dispSize = Math.round(finalProps.scanRatio * Math.min(cw, ch));
+        if (dispSize <= 0) return;
+        busy = true;
         const dispSx = Math.round((cw - dispSize) / 2);
         const dispSy = Math.round((ch - dispSize) / 2);
         setCropRect({ left: dispSx, top: dispSy, size: dispSize });
@@ -171,18 +175,22 @@ export default function CodeScanner(props: CodeScannerProps) {
             </Show>
 
             <Show when={devices().length > 1}>
-                <div class="fab top-20 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)]">
+                <div class="fab top-20 bottom-[calc(4rem+env(safe-area-inset-bottom)+5.25rem)]">
                     <div
                         tabindex="0"
                         role="button"
                         class="btn btn-lg btn-circle btn-primary btn-soft"
+                        aria-label={t("camera.switchCamera")}
                     >
                         <IconCameraRotate />
                     </div>
                     <For each={devices()}>
                         {(device) => (
                             <button class="btn" onClick={() => handleDeviceChange(device.deviceId)}>
-                                {device.label || `Camera ${device.deviceId.slice(0, 6)}`}
+                                {device.label ||
+                                    t("camera.cameraLabel", {
+                                        id: device.deviceId.slice(0, 6),
+                                    })}
                             </button>
                         )}
                     </For>

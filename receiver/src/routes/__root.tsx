@@ -6,6 +6,8 @@ import Sidebar, { type SidebarRoute } from "../components/sidebar";
 
 import "../styles.css";
 import { Toaster } from "solid-sonner";
+import { createEffect, createMemo } from "solid-js";
+import { applyDocumentLanguage, t } from "core/i18n";
 
 export const Route = createRootRoute({
     component: RootComponent,
@@ -13,29 +15,31 @@ export const Route = createRootRoute({
     errorComponent: RouteError,
 });
 
-const appRoutes: SidebarRoute[] = [
-    {
-        name: "Scanner Devices",
-        path: "/scanners",
-        icon: <IconDeviceCameraPhone />,
-    },
-    {
-        name: "History",
-        path: "/history",
-        icon: <IconHistory />,
-    },
-    {
-        name: "Settings",
-        path: "/settings",
-        icon: <IconSettings />,
-    },
-];
-
 function RootComponent() {
+    const appRoutes = createMemo<SidebarRoute[]>(() => [
+        {
+            name: t("nav.devices"),
+            path: "/scanners",
+            icon: <IconDeviceCameraPhone />,
+        },
+        {
+            name: t("nav.history"),
+            path: "/history",
+            icon: <IconHistory />,
+        },
+        {
+            name: t("nav.settings"),
+            path: "/settings",
+            icon: <IconSettings />,
+        },
+    ]);
+
+    createEffect(applyDocumentLanguage);
+
     return (
         <>
             <Toaster position="bottom-right" />
-            <Sidebar routes={appRoutes}>
+            <Sidebar routes={appRoutes()}>
                 <Outlet />
             </Sidebar>
             <TanStackRouterDevtools position="bottom-right" />

@@ -5,6 +5,7 @@ import { connections, getPeerName, isConnected } from "core/stores/peer-connecti
 import { ConnectionQRCard } from "@/components/connection-qr-card";
 import { ConnectionCard } from "@/components/connection-card";
 import { Modal } from "core/components/modal";
+import { t } from "core/i18n";
 
 export const Route = createFileRoute("/scanners")({
     component: RouteComponent,
@@ -61,10 +62,12 @@ function RouteComponent() {
                 }
             >
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-bold">Connected devices</h2>
+                    <h2 class="text-lg font-bold">
+                        {t("receiver.scanners.connectedDevices")}
+                    </h2>
                     <button class="btn btn-primary btn-sm" onClick={openAddDeviceModal}>
                         <IconPlus class="size-4" />
-                        Add device
+                        {t("receiver.scanners.addDevice")}
                     </button>
                 </div>
 
@@ -73,7 +76,11 @@ function RouteComponent() {
                 </div>
             </Show>
 
-            <Modal open={modalOpen()} onClose={() => setModalOpen(false)} title="Link new device">
+            <Modal
+                open={modalOpen()}
+                onClose={() => setModalOpen(false)}
+                title={t("receiver.scanners.linkNewDevice")}
+            >
                 <ConnectionQRCard newConnectionName={newConnectionName()} />
             </Modal>
         </div>

@@ -1,6 +1,6 @@
 {
-  "short_name": "Linked Scanner",
-  "name": "Linked Scanner - Unleash your phone into a barcode scanner",
+  "short_name": "Gzw Scanner",
+  "name": "Gzw Scanner - 手机扫码，电脑输入",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,10 +18,10 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/linked-scanner/scanner/",
+  "start_url": "/gzw-scanner/scanner/",
   "display": "standalone",
-  "id": "/linked-scanner/scanner/",
-  "scope": "/linked-scanner/scanner/",
+  "id": "/gzw-scanner/scanner/",
+  "scope": "/gzw-scanner/scanner/",
   "theme_color": "#6463f4",
   "background_color": "#1b222b"
 }

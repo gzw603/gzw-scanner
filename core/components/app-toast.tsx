@@ -9,6 +9,7 @@ import {
     IconLoader2,
     IconX,
 } from "@tabler/icons-solidjs";
+import { t } from "../i18n";
 
 type ToastVariant = "default" | "success" | "info" | "warning" | "error" | "loading";
 
@@ -78,7 +79,7 @@ function AlertToast(props: {
                 {!isLoading && props.dismissible !== false && (
                     <button
                         class="btn btn-sm btn-ghost btn-square"
-                        aria-label="Dismiss"
+                        aria-label={t("common.dismiss")}
                         onClick={() => toast.dismiss(props.id)}
                     >
                         <IconX class="size-4" />

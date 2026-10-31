@@ -6,7 +6,8 @@ import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
 import { Toaster } from "solid-sonner";
 
 import { doneOnboarding } from "@/stores/onboarding";
-import { createEffect, on, untrack } from "solid-js";
+import { createEffect, createMemo, on, untrack } from "solid-js";
+import { applyDocumentLanguage, t } from "core/i18n";
 import "../styles.css";
 
 export const Route = createRootRoute({
@@ -15,27 +16,26 @@ export const Route = createRootRoute({
     errorComponent: RouteError,
 });
 
-const appRoutes: DockRoute[] = [
-    {
-        name: "Scan",
-        path: "/scan",
-        icon: <IconScan />,
-    },
-    {
-        name: "History",
-        path: "/history",
-        icon: <IconHistory />,
-    },
-    {
-        name: "Settings",
-        path: "/settings",
-        icon: <IconSettings />,
-    },
-];
-
 function RootComponent() {
     const navigate = useNavigate();
     const matchRoute = useMatchRoute();
+    const appRoutes = createMemo<DockRoute[]>(() => [
+        {
+            name: t("nav.scan"),
+            path: "/scan",
+            icon: <IconScan />,
+        },
+        {
+            name: t("nav.history"),
+            path: "/history",
+            icon: <IconHistory />,
+        },
+        {
+            name: t("nav.settings"),
+            path: "/settings",
+            icon: <IconSettings />,
+        },
+    ]);
 
     const onboardingRedirect = (done: boolean) => {
         if (!done) {
@@ -47,6 +47,7 @@ function RootComponent() {
     };
 
     createEffect(on(doneOnboarding, onboardingRedirect));
+    createEffect(applyDocumentLanguage);
 
     return (
         <>
@@ -56,7 +57,7 @@ function RootComponent() {
                 <Outlet />
             </main>
 
-            <AppDock routes={appRoutes} />
+            <AppDock routes={appRoutes()} />
 
             <TanStackRouterDevtools position="bottom-right" />
         </>

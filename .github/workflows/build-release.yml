@@ -1,62 +1,21 @@
-name: Build & Release
+name: Build, Deploy & Release
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-tauri:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            arch: x86_64
-          - os: macos-14
-            arch: arm64
-          - os: ubuntu-24.04
-            arch: x86_64
-          - os: ubuntu-24.04-arm
-            arch: arm64
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 26
-          cache: pnpm
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - name: install Linux deps
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: build Tauri
-        run: pnpm --filter receiver tauri build
-
-      - name: upload bundles
-        uses: actions/upload-artifact@v7
-        with:
-          name: receiver-${{ matrix.os }}-${{ matrix.arch }}
-          path: |
-            receiver/src-tauri/target/release/bundle/**/*.deb
-            receiver/src-tauri/target/release/bundle/**/*.rpm
-            receiver/src-tauri/target/release/bundle/**/*.AppImage
-            receiver/src-tauri/target/release/bundle/**/*.dmg
-            receiver/src-tauri/target/release/bundle/**/*.msi
-            receiver/src-tauri/target/release/bundle/**/*.exe
-
   build-pwa:
     runs-on: ubuntu-24.04
     steps:
@@ -73,48 +32,27 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm test
+
       - name: build scanner PWA
         run: pnpm --filter scanner build
         env:
-          VITE_BASE_PATH: /linked-scanner/scanner/
+          VITE_BASE_PATH: /gzw-scanner/scanner/
 
       - name: prepare pages artifact
         run: |
           mkdir -p _site/scanner
           cp -r scanner/dist/* _site/scanner/
           cp -r landing/* _site/
+          touch _site/.nojekyll
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
           name: github-pages
 
-      - uses: actions/upload-artifact@v7
-        with:
-          name: scanner-pwa
-          path: scanner/dist
-
-  create-release:
-    needs: [build-tauri, build-pwa]
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v8
-
-      - name: draft release
-        uses: softprops/action-gh-release@v3
-        with:
-          draft: true
-          generate_release_notes: true
-          files: |
-            receiver-*/**/*.deb
-            receiver-*/**/*.rpm
-            receiver-*/**/*.AppImage
-            receiver-*/**/*.dmg
-            receiver-*/**/*.msi
-            receiver-*/**/*.exe
-
   deploy-pages:
+    if: github.ref == 'refs/heads/main'
     needs: build-pwa
     permissions:
       pages: write
@@ -124,5 +62,79 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/configure-pages@v5
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  build-windows:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+
+      - name: test Rust input parsing
+        working-directory: receiver/src-tauri
+        run: cargo test --lib
+
+      - name: build Windows app
+        run: pnpm --filter receiver tauri build
+
+      - name: prepare EXE files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+
+          $portable = Get-ChildItem "receiver/src-tauri/target/release" -Filter *.exe |
+            Where-Object { $_.Name -notmatch 'setup|uninstall' } |
+            Select-Object -First 1
+          if (-not $portable) { throw "Portable EXE not found" }
+          Copy-Item $portable.FullName "release/Gzw Scanner-Portable.exe"
+
+          $setup = Get-ChildItem "receiver/src-tauri/target/release/bundle/nsis/*-setup.exe" |
+            Select-Object -First 1
+          if (-not $setup) { throw "NSIS setup EXE not found" }
+          Copy-Item $setup.FullName "release/Gzw Scanner-Setup.exe"
+
+          Get-ChildItem release | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-release
+          path: release/*
+          if-no-files-found: error
+
+  create-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-windows
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: windows-release
+          path: release
+
+      - name: create GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: false
+          generate_release_notes: true
+          files: |
+            release/Gzw Scanner-Portable.exe
+            release/Gzw Scanner-Setup.exe

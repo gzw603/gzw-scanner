@@ -1,5 +1,6 @@
 import { createSignal, Match, Switch } from "solid-js";
 import { IconCamera, IconCheck } from "@tabler/icons-solidjs";
+import { t } from "core/i18n";
 
 type CameraStatus = "idle" | "granted" | "denied";
 
@@ -22,34 +23,34 @@ export function CameraStep(props: { onNext: () => void }) {
                 <Switch>
                     <Match when={status() === "idle"}>
                         <IconCamera size={40} stroke-width={1.5} />
-                        <h2 class="card-title">Enable your camera</h2>
+                        <h2 class="card-title">{t("onboarding.cameraEnableTitle")}</h2>
                         <p class="text-sm text-base-content/60">
-                            We need camera access to scan things for you.
+                            {t("onboarding.cameraEnableDescription")}
                         </p>
                         <button class="btn btn-primary btn-block mt-3" onClick={requestCamera}>
-                            Enable Camera
+                            {t("onboarding.cameraEnableButton")}
                         </button>
                     </Match>
 
                     <Match when={status() === "granted"}>
                         <IconCheck size={40} stroke-width={1.5} class="text-success" />
-                        <h2 class="card-title">Camera enabled</h2>
+                        <h2 class="card-title">{t("onboarding.cameraEnabledTitle")}</h2>
                         <button class="btn btn-primary btn-block mt-3" onClick={props.onNext}>
-                            Continue
+                            {t("common.continue")}
                         </button>
                     </Match>
 
                     <Match when={status() === "denied"}>
                         <IconCamera size={40} stroke-width={1.5} class="text-warning" />
-                        <h2 class="card-title">Camera blocked</h2>
+                        <h2 class="card-title">{t("onboarding.cameraBlockedTitle")}</h2>
                         <p class="text-sm text-base-content/60">
-                            Enable it in your browser settings, then retry.
+                            {t("onboarding.cameraBlockedDescription")}
                         </p>
                         <button class="btn btn-primary btn-block mt-3" onClick={requestCamera}>
-                            Retry
+                            {t("common.retry")}
                         </button>
                         <button class="btn btn-ghost btn-block" onClick={props.onNext}>
-                            Skip for now
+                            {t("common.skipForNow")}
                         </button>
                     </Match>
                 </Switch>

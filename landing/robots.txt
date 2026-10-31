@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://newish0.github.io/linked-scanner/sitemap.xml
+Sitemap: https://gzw603.github.io/gzw-scanner/sitemap.xml

@@ -1,12 +1,13 @@
 import { For } from "solid-js";
+import { t, type MessageKey } from "core/i18n";
 
 export type StepKey = "start" | "welcome" | "camera" | "install";
 
-const LABELS: Record<StepKey, string> = {
-    start: "Start",
-    welcome: "Welcome",
-    camera: "Camera",
-    install: "Install App",
+const LABELS: Record<StepKey, MessageKey> = {
+    start: "onboarding.start",
+    welcome: "onboarding.welcome",
+    camera: "onboarding.camera",
+    install: "onboarding.install",
 };
 
 /**
@@ -30,7 +31,7 @@ export function StepsIndicator(props: { current: StepKey }) {
                             "step-primary": isDone(key) || isActive(key),
                         }}
                     >
-                        {LABELS[key]}
+                        {t(LABELS[key])}
                     </li>
                 )}
             </For>

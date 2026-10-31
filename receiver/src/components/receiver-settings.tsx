@@ -1,50 +1,65 @@
 import AboutApp from "core/components/about-app";
 import ResetApp from "core/components/reset-app";
 import { Settings, type SettingSection } from "core/components/settings";
+import { t, preferredLocale, setPreferredLocale, type LocalePreference } from "core/i18n";
 import { deviceName, deviceId, setDeviceName } from "core/stores/device";
 import { maxHistoryLength, setMaxHistoryLength } from "core/stores/history";
+import { createMemo, untrack } from "solid-js";
 
 export default function ReceiverSettings() {
-    const sections: SettingSection[] = [
+    const sections = createMemo<SettingSection[]>(() => [
         {
-            title: "General",
+            title: t("settings.general"),
             settings: [
                 {
+                    id: "language",
+                    label: t("language.title"),
+                    description: t("language.description"),
+                    type: "select",
+                    value: preferredLocale(),
+                    onChange: (value) => setPreferredLocale(value as LocalePreference),
+                    options: [
+                        { value: "system", label: t("language.system") },
+                        { value: "zh", label: t("language.zh") },
+                        { value: "en", label: t("language.en") },
+                    ],
+                },
+                {
                     id: "device-name",
-                    label: "Device Name",
+                    label: t("settings.deviceName"),
                     type: "input",
-                    value: deviceName(),
+                    value: untrack(deviceName),
                     onChange: setDeviceName,
                 },
                 {
                     id: "device-id",
-                    label: "Device ID",
+                    label: t("settings.deviceId"),
                     type: "input",
                     readOnly: true,
-                    value: deviceId(),
+                    value: untrack(deviceId),
                     onChange: () => void {},
                 },
             ],
         },
         {
-            title: "Advanced",
+            title: t("settings.advanced"),
             settings: [
                 {
                     id: "history-length",
-                    label: "History Length",
-                    description: "Max number of entries to keep in scan history.",
+                    label: t("settings.historyLength"),
+                    description: t("settings.historyLengthDescription"),
                     type: "slider",
                     position: "inline",
                     min: 50,
                     max: 500,
                     step: 10,
-                    value: maxHistoryLength(),
+                    value: untrack(maxHistoryLength),
                     onChange: setMaxHistoryLength,
-                    displayValue: () => `${maxHistoryLength()} entries`,
+                    displayValue: () => t("settings.entries", { count: maxHistoryLength() }),
                 },
                 {
                     id: "reset-app",
-                    label: "Reset App",
+                    label: t("settings.resetApp"),
                     type: "custom",
                     position: "inline",
                     render: () => <ResetApp baseUrl={import.meta.env.BASE_URL} />,
@@ -52,27 +67,27 @@ export default function ReceiverSettings() {
             ],
         },
         {
-            title: "About",
+            title: t("settings.about"),
             settings: [
                 {
                     id: "about",
                     type: "custom",
                     render: () => (
                         <AboutApp
-                            appName="Linked Scanner"
-                            appSuperName="receiver"
-                            shortDescription="Receive barcode scans on your desktop"
+                            appName={t("app.name")}
+                            appSuperName={t("role.receiver")}
+                            shortDescription={t("about.receiverDescription")}
                             version={import.meta.env.VITE_APP_VERSION}
                             logo="logoR192.png"
                             license="MIT"
-                            licenseUrl="https://github.com/Newish0/linked-scanner/blob/main/LICENSE"
-                            githubUrl="https://github.com/Newish0/linked-scanner"
+                            licenseUrl="https://github.com/gzw603/gzw-scanner/blob/main/LICENSE"
+                            githubUrl="https://github.com/gzw603/gzw-scanner"
                         />
                     ),
                 },
             ],
         },
-    ];
+    ]);
 
-    return <Settings sections={sections} />;
+    return <Settings sections={sections()} />;
 }

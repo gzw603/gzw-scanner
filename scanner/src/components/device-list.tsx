@@ -4,13 +4,14 @@ import { cn } from "core/utils/tw";
 import { createSignal, For, Show } from "solid-js";
 import type { DataConnection } from "peerjs";
 import { Modal } from "core/components/modal";
+import { t } from "core/i18n";
 
 export function DeviceList() {
     const [selectedConn, setSelectedConn] = createSignal<DataConnection>();
 
     return (
         <>
-            <div class="fab top-20 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] left-4 flex items-start">
+            <div class="fab top-20 bottom-[calc(4rem+env(safe-area-inset-bottom)+5.25rem)] left-4 flex items-start">
                 <div class="indicator">
                     <span class={cn("indicator-item badge badge-sm", "badge-secondary")}>
                         {connections().length}
@@ -30,7 +31,8 @@ export function DeviceList() {
                 <For each={connections()}>
                     {(conn) => (
                         <button class="btn" onClick={() => setSelectedConn(conn)}>
-                            {getPeerName(conn.peer) || `Device ${conn.peer.slice(0, 6)}`}
+                            {getPeerName(conn.peer) ||
+                                t("common.deviceLabel", { id: conn.peer.slice(0, 6) })}
                         </button>
                     )}
                 </For>
@@ -41,7 +43,10 @@ export function DeviceList() {
                 onClose={() => setSelectedConn()}
                 title={(() => {
                     const conn = selectedConn();
-                    return conn ? (getPeerName(conn.peer) || `Device ${conn.peer.slice(0, 6)}`) : "";
+                    return conn
+                        ? getPeerName(conn.peer) ||
+                              t("common.deviceLabel", { id: conn.peer.slice(0, 6) })
+                        : "";
                 })()}
             >
                 <Show when={selectedConn()}>
@@ -53,10 +58,13 @@ export function DeviceList() {
                             <div class="flex-1 min-w-0">
                                 <div class="font-bold truncate">{getPeerName(conn().peer) || conn().peer}</div>
                                 <div class="text-xs text-base-content/60 truncate font-mono">{conn().peer}</div>
-                                <span class="badge badge-success badge-sm mt-1">Connected</span>
+                                <span class="badge badge-success badge-sm mt-1">
+                                    {t("common.connected")}
+                                </span>
                             </div>
                             <button
                                 class="btn btn-error btn-sm btn-square"
+                                aria-label={t("common.disconnect")}
                                 onClick={() => {
                                     conn().close();
                                     setSelectedConn();

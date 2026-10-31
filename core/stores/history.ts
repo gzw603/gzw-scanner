@@ -2,16 +2,19 @@ import { createSignal } from "solid-js";
 import { makePersisted } from "@solid-primitives/storage";
 import type { AsyncStorage } from "@solid-primitives/storage";
 import { get, set, del } from "idb-keyval";
+import type { InputEvent } from "../utils/input-events";
 
 type ScanSentEntry = {
     type: "scan-sent";
     content: string;
+    events?: InputEvent[];
     timestamp: number;
     receiverIds: string[];
 };
 type ScanReceivedEntry = {
     type: "scan-received";
     content: string;
+    events?: InputEvent[];
     timestamp: number;
     scannerId: string;
 };
@@ -49,10 +52,10 @@ const setHistory = (fn: (prev: HistoryEntry[]) => HistoryEntry[]) => {
 
 // ===== actions =====
 
-export function addScanSentHistory(content: string, receiverIds: string[]) {
+export function addScanSentHistory(content: string, receiverIds: string[], events: InputEvent[]) {
     setHistory((prev) => [
         ...prev,
-        { type: "scan-sent", content, receiverIds, timestamp: Date.now() },
+        { type: "scan-sent", content, events, receiverIds, timestamp: Date.now() },
     ]);
 }
 
@@ -60,10 +63,14 @@ export function addConnectionHistory(peerId: string) {
     setHistory((prev) => [...prev, { type: "connection", peerId, timestamp: Date.now() }]);
 }
 
-export function addScanReceivedHistory(content: string, scannerId: string) {
+export function addScanReceivedHistory(
+    content: string,
+    scannerId: string,
+    events: InputEvent[],
+) {
     setHistory((prev) => [
         ...prev,
-        { type: "scan-received", content, scannerId, timestamp: Date.now() },
+        { type: "scan-received", content, events, scannerId, timestamp: Date.now() },
     ]);
 }
 

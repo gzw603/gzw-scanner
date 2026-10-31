@@ -1,6 +1,7 @@
 import { createSignal, onCleanup, Show, type JSX } from "solid-js";
 import { clear as clearIdb } from "idb-keyval";
 import { Modal } from "./modal";
+import { t } from "../i18n";
 
 type Props = {
     baseUrl: string;
@@ -42,7 +43,7 @@ export default function ResetApp(props: Props) {
     return (
         <>
             <button class="btn btn-sm btn-error" onClick={() => setShowModal(true)}>
-                Reset App
+                {t("reset.title")}
             </button>
 
             <Modal
@@ -51,11 +52,14 @@ export default function ResetApp(props: Props) {
                     cancelHold();
                     setShowModal(false);
                 }}
-                title="Reset App"
+                title={t("reset.title")}
             >
                 <p>
-                    Are you sure you want to <span class="text-error font-bold">reset</span> the
-                    app? This is an <span class="text-error font-bold">irreversible</span> action!
+                    {t("reset.confirmPrefix")}{" "}
+                    <span class="text-error font-bold">{t("reset.confirmReset")}</span>{" "}
+                    {t("reset.confirmMiddle")}{" "}
+                    <span class="text-error font-bold">{t("reset.confirmIrreversible")}</span>{" "}
+                    {t("reset.confirmSuffix")}
                 </p>
 
                 <button
@@ -66,8 +70,8 @@ export default function ResetApp(props: Props) {
                     onPointerCancel={cancelHold}
                     onLostPointerCapture={cancelHold}
                 >
-                    <Show when={holding()} fallback="Hold to reset">
-                        Keep holding...
+                    <Show when={holding()} fallback={t("reset.hold")}>
+                        {t("reset.holding")}
                     </Show>
                 </button>
             </Modal>

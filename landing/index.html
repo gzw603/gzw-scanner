@@ -1,213 +1,294 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linked Scanner — Turn Your Phone into a Wireless Barcode Scanner</title>
+  <title>Gzw Scanner — 手机扫码，电脑输入</title>
   <meta name="description"
-    content="Linked Scanner turns your smartphone into a wireless barcode scanner for your computer. Free, open-source, peer-to-peer, cross-platform (Windows, macOS, Linux). No extra hardware needed.">
+    content="Gzw Scanner 将手机变成电脑的无线扫码输入设备，支持 Unicode 文本、空格、回车、Tab 和组合快捷键。Gzw Scanner turns your phone into a wireless scanner and keyboard for your PC.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#0b0c10">
-  <link rel="canonical" href="https://newish0.github.io/linked-scanner/">
+  <link rel="canonical" href="https://gzw603.github.io/gzw-scanner/">
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://newish0.github.io/linked-scanner/">
-  <meta property="og:title" content="Linked Scanner — Turn Your Phone into a Wireless Barcode Scanner">
+  <meta property="og:url" content="https://gzw603.github.io/gzw-scanner/">
+  <meta property="og:title" content="Gzw Scanner — 手机扫码，电脑输入">
   <meta property="og:description"
-    content="Free, open-source app that turns your smartphone into a wireless barcode scanner for your computer. Peer-to-peer, cross-platform, no extra hardware needed.">
-  <meta property="og:image" content="https://newish0.github.io/linked-scanner/logoR512.png">
-  <meta property="og:site_name" content="Linked Scanner">
+    content="手机扫码，电脑输入。支持 Unicode 文本、独立按键、组合快捷键、前缀和后缀。">
+  <meta property="og:image" content="https://gzw603.github.io/gzw-scanner/logoR512.png">
+  <meta property="og:site_name" content="Gzw Scanner">
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Linked Scanner — Turn Your Phone into a Wireless Barcode Scanner">
-  <meta name="twitter:description"
-    content="Free, open-source app that turns your smartphone into a wireless barcode scanner for your computer.">
-  <meta name="twitter:image" content="https://newish0.github.io/linked-scanner/logoR512.png">
+  <meta name="twitter:title" content="Gzw Scanner — 手机扫码，电脑输入">
+  <meta name="twitter:description" content="手机扫码，电脑输入。支持 Unicode 文本和组合快捷键。">
+  <meta name="twitter:image" content="https://gzw603.github.io/gzw-scanner/logoR512.png">
 
   <link rel="icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2/tabler-icons.min.css">
   <style>
+    .hero-glow {
+      background: radial-gradient(circle at 50% 10%, color-mix(in oklab, var(--color-primary) 28%, transparent), transparent 55%);
+    }
   </style>
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Linked Scanner",
-    "description": "A lightweight application that turns your smartphone into a wireless barcode scanner for your computer, using a peer-to-peer connection.",
+    "name": "Gzw Scanner",
+    "description": "Wireless phone-to-PC scanner input with Unicode text and keyboard shortcuts.",
     "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "Windows, macOS, Linux, Android, iOS",
-    "url": "https://newish0.github.io/linked-scanner/",
-    "image": "https://newish0.github.io/linked-scanner/logoR512.png",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "downloadUrl": "https://github.com/newish0/linked-scanner/releases",
-    "softwareHelp": "https://github.com/newish0/linked-scanner",
-    "author": {
-      "@type": "Person",
-      "name": "newish0"
-    }
+    "operatingSystem": "Windows 10, Windows 11, Android, iOS",
+    "url": "https://gzw603.github.io/gzw-scanner/",
+    "image": "https://gzw603.github.io/gzw-scanner/logoR512.png",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+    "downloadUrl": "https://github.com/gzw603/gzw-scanner/releases",
+    "softwareHelp": "https://github.com/gzw603/gzw-scanner",
+    "author": { "@type": "Person", "name": "gzw603" }
   }
   </script>
 </head>
 
 <body class="min-h-screen bg-base-100">
-  <div class="max-w-3xl mx-auto px-5">
-
-    <header class="text-center pt-20 pb-10">
-      <div class="inline-flex items-center gap-4 mb-1 text-left">
-        <img src="logoR512.png" alt="Linked Scanner logo" class="size-28">
-        <div>
-          <h1 class="text-primary text-6xl font-bold leading-12 tracking-tight">
-            Linked Scanner
-            <sup class="align-top text-base font-normal leading-12 ml-1">Scanner + Receiver</sup>
-          </h1>
-          <p class="text-base text-base-content/70 ml-1">Wireless barcode scanning, phone to desktop</p>
+  <div class="max-w-4xl mx-auto px-5">
+    <header class="hero-glow -mx-5 px-5 pt-6 pb-16">
+      <div class="flex justify-end">
+        <div class="join" role="group" aria-label="Language / 语言">
+          <button class="btn btn-sm join-item" data-lang-button="zh">中文</button>
+          <button class="btn btn-sm join-item" data-lang-button="en">English</button>
         </div>
       </div>
-      <p class="text-base-content/70 max-w-md mx-auto mt-6 mb-8">
-        Turn your phone into a wireless barcode scanner for your computer.
-        No extra hardware, no wires — just point, scan, done.
-      </p>
-      <div class="flex gap-3 justify-center flex-wrap">
-        <a class="btn btn-primary" href="https://newish0.github.io/linked-scanner/scanner">
-          <i class="ti ti-qrcode text-lg"></i> Launch Scanner
-        </a>
-        <a class="btn btn-outline" href="#download">
-          <i class="ti ti-download text-lg"></i> Download Receiver
-        </a>
-        <a class="btn btn-ghost" href="https://github.com/newish0/linked-scanner">
-          <i class="ti ti-brand-github text-lg"></i> GitHub
-        </a>
+
+      <div class="text-center pt-10">
+        <div class="inline-flex flex-col items-center gap-3">
+          <img src="logoR512.png" alt="Gzw Scanner logo" class="size-28">
+          <div>
+            <h1 class="text-primary text-5xl sm:text-6xl font-bold tracking-tight">Gzw Scanner</h1>
+            <p class="mt-2 text-base text-base-content/70"
+              data-en="Scan with your phone. Type on your PC."
+              data-zh="手机扫码，电脑输入">手机扫码，电脑输入</p>
+          </div>
+        </div>
+
+        <p class="text-base-content/70 max-w-2xl mx-auto mt-6" data-en="Send scanned Unicode text and keystrokes straight to any focused input on Windows. Space, Enter, Tab, shortcuts, prefixes and suffixes are supported."
+          data-zh="把扫码得到的 Unicode 文本和按键直接输入到 Windows 当前光标位置，支持空格、回车、Tab、组合快捷键、前缀和后缀。">
+          把扫码得到的 Unicode 文本和按键直接输入到 Windows 当前光标位置，支持空格、回车、Tab、组合快捷键、前缀和后缀。
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-3 mt-7">
+          <a class="btn btn-primary" href="https://gzw603.github.io/gzw-scanner/scanner/">
+            <i class="ti ti-qrcode text-lg"></i>
+            <span data-en="Open Phone Scanner" data-zh="打开手机扫码端">打开手机扫码端</span>
+          </a>
+          <a class="btn btn-outline" href="#download">
+            <i class="ti ti-download text-lg"></i>
+            <span data-en="Download for Windows" data-zh="下载 Windows 版">下载 Windows 版</span>
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/gzw603/gzw-scanner">
+            <i class="ti ti-brand-github text-lg"></i> GitHub
+          </a>
+        </div>
       </div>
     </header>
 
-    <section id="download" class="py-9">
+    <section id="download" class="py-6 scroll-mt-4">
       <div class="card bg-base-200 border border-base-300">
-        <div class="card-body">
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h2 class="card-title"><i class="ti ti-device-desktop"></i> Download Receiver</h2>
-              <p class="text-base-content/70">
-                The desktop app that pairs with the Scanner PWA over a peer-to-peer connection.
-              </p>
-            </div>
-            <div class="flex flex-col items-stretch sm:items-end gap-1.5 shrink-0 grow-1 min-w-1/3">
-              <div class="flex gap-2">
-                <select id="os-select" class="select select-bordered grow sm:grow-0">
-                  <option value="windows">Windows</option>
-                  <option value="mac-arm64">macOS (Apple Silicon)</option>
-                  <option value="linux">Linux</option>
-                </select>
-                <button class="btn btn-primary" id="download-btn">
-                  <i class="ti ti-download"></i> Download
-                </button>
-              </div>
-              <div class="text-sm text-base-content/60" id="status">Detecting latest release…</div>
-            </div>
+        <div class="card-body gap-5">
+          <div>
+            <h2 class="card-title text-2xl">
+              <i class="ti ti-device-desktop"></i>
+              <span data-en="Download the Windows receiver" data-zh="下载 Windows 接收端">下载 Windows 接收端</span>
+            </h2>
+            <p class="text-base-content/70 mt-2" data-en="Windows 10/11 x64. Setup installs WebView2 if needed. The portable build runs without installation but still needs WebView2."
+              data-zh="适用于 Windows 10/11 x64。安装版会在需要时安装 WebView2；便携版无需安装，但电脑仍需具备 WebView2。">
+              适用于 Windows 10/11 x64。安装版会在需要时安装 WebView2；便携版无需安装，但电脑仍需具备 WebView2。
+            </p>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <a id="setup-download" class="btn btn-primary btn-lg h-auto py-4"
+              href="https://github.com/gzw603/gzw-scanner/releases/latest">
+              <i class="ti ti-download text-xl"></i>
+              <span class="text-left">
+                <span class="block" data-en="Installer (Recommended)" data-zh="安装版（推荐）">安装版（推荐）</span>
+                <span class="block text-xs font-normal opacity-80">Gzw Scanner-Setup.exe</span>
+              </span>
+            </a>
+            <a id="portable-download" class="btn btn-outline btn-lg h-auto py-4"
+              href="https://github.com/gzw603/gzw-scanner/releases/latest">
+              <i class="ti ti-file-download text-xl"></i>
+              <span class="text-left">
+                <span class="block" data-en="Portable EXE" data-zh="便携版 EXE">便携版 EXE</span>
+                <span class="block text-xs font-normal opacity-70">Gzw Scanner-Portable.exe</span>
+              </span>
+            </a>
+          </div>
+          <div id="release-status" class="text-sm text-base-content/60" data-en="Detecting the latest release..."
+            data-zh="正在检查最新版本...">正在检查最新版本...</div>
+          <p class="text-xs text-base-content/50" data-en="No code-signing certificate is used, so Windows SmartScreen may show a warning. Choose More info → Run anyway after verifying the download source."
+            data-zh="应用未使用代码签名证书，Windows SmartScreen 可能提示风险。确认下载来源后，可选择“更多信息”→“仍要运行”。">
+            应用未使用代码签名证书，Windows SmartScreen 可能提示风险。确认下载来源后，可选择“更多信息”→“仍要运行”。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-10">
+      <h2 class="text-2xl font-bold text-center mb-6" data-en="How it works" data-zh="使用步骤">使用步骤</h2>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="card bg-base-200 border border-base-300">
+          <div class="card-body">
+            <span class="badge badge-primary">01</span>
+            <h3 class="font-semibold" data-en="Run the receiver" data-zh="运行接收端">运行接收端</h3>
+            <p class="text-sm text-base-content/70" data-en="Open Gzw Scanner on your PC and keep it running. Its window shows a connection QR code."
+              data-zh="在电脑上打开 Gzw Scanner 并保持运行，窗口中会显示连接二维码。">在电脑上打开 Gzw Scanner 并保持运行，窗口中会显示连接二维码。</p>
+          </div>
+        </div>
+        <div class="card bg-base-200 border border-base-300">
+          <div class="card-body">
+            <span class="badge badge-primary">02</span>
+            <h3 class="font-semibold" data-en="Connect your phone" data-zh="手机连接电脑">手机连接电脑</h3>
+            <p class="text-sm text-base-content/70" data-en="Open the phone scanner and scan the receiver QR code. Phone and PC should normally be on the same Wi-Fi."
+              data-zh="打开手机扫码端，扫描电脑上的二维码。手机和电脑通常应连接同一个 Wi-Fi。">打开手机扫码端，扫描电脑上的二维码。手机和电脑通常应连接同一个 Wi-Fi。</p>
+          </div>
+        </div>
+        <div class="card bg-base-200 border border-base-300">
+          <div class="card-body">
+            <span class="badge badge-primary">03</span>
+            <h3 class="font-semibold" data-en="Focus a field, then scan" data-zh="点中输入框后扫码">点中输入框后扫码</h3>
+            <p class="text-sm text-base-content/70" data-en="Click the target input in another program, then scan. Text and key actions are injected at the current cursor."
+              data-zh="先点中其他程序里要输入的位置，再扫码。文本和按键会输入到当前光标处。">先点中其他程序里要输入的位置，再扫码。文本和按键会输入到当前光标处。</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="py-9">
-      <h2 class="sr-only">Features</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <section class="py-8">
+      <h2 class="text-2xl font-bold text-center mb-6" data-en="Built for real scanning work" data-zh="为实际扫码输入而做">为实际扫码输入而做</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
         <div class="card bg-base-200 border border-base-300">
           <div class="card-body">
-            <i class="ti ti-wifi text-2xl text-primary"></i>
-            <h3 class="font-semibold">Wireless Scanning</h3>
-            <p class="text-sm text-base-content/70">Use your phone's camera as a barcode scanner — no extra hardware
-              needed.</p>
+            <i class="ti ti-keyboard text-2xl text-primary"></i>
+            <h3 class="font-semibold" data-en="Unicode text and key actions" data-zh="Unicode 文本与按键操作">Unicode 文本与按键操作</h3>
+            <p class="text-sm text-base-content/70" data-en="Chinese, English, emoji, accents, Space, Enter, Tab and common modifier shortcuts are supported."
+              data-zh="支持中文、英文、Emoji、重音字符、空格、回车、Tab 和常用组合快捷键。">支持中文、英文、Emoji、重音字符、空格、回车、Tab 和常用组合快捷键。</p>
           </div>
         </div>
         <div class="card bg-base-200 border border-base-300">
           <div class="card-body">
-            <i class="ti ti-plug text-2xl text-primary"></i>
-            <h3 class="font-semibold">Plug and Play</h3>
-            <p class="text-sm text-base-content/70">Install Receiver on desktop, open Scanner on phone, scan a QR code
-              to pair.</p>
+            <i class="ti ti-code text-2xl text-primary"></i>
+            <h3 class="font-semibold" data-en="Markers inside scanned content" data-zh="扫码内容中的按键标记">扫码内容中的按键标记</h3>
+            <p class="text-sm text-base-content/70" data-en="Use {{SPACE}}, {{ENTER}}, {{TAB}} or {{KEY:Ctrl+V}} to mix text and keys in one scan."
+              data-zh="使用 {{SPACE}}、{{ENTER}}、{{TAB}} 或 {{KEY:Ctrl+V}} 在同一次扫码中混合文本和按键。">使用 {{SPACE}}、{{ENTER}}、{{TAB}} 或 {{KEY:Ctrl+V}} 在同一次扫码中混合文本和按键。</p>
           </div>
         </div>
         <div class="card bg-base-200 border border-base-300">
           <div class="card-body">
-            <i class="ti ti-devices text-2xl text-primary"></i>
-            <h3 class="font-semibold">Cross-Platform</h3>
-            <p class="text-sm text-base-content/70">Windows, macOS, and Linux desktop app + a PWA that runs in any
-              mobile browser.</p>
+            <i class="ti ti-adjustments text-2xl text-primary"></i>
+            <h3 class="font-semibold" data-en="Prefix, suffix and auto action" data-zh="前缀、后缀和自动按键">前缀、后缀和自动按键</h3>
+            <p class="text-sm text-base-content/70" data-en="Wrap every scan with your own text, then automatically send Space, Enter or Tab."
+              data-zh="为每次扫码添加固定前后缀，并自动发送空格、回车或 Tab。">为每次扫码添加固定前后缀，并自动发送空格、回车或 Tab。</p>
           </div>
         </div>
         <div class="card bg-base-200 border border-base-300">
           <div class="card-body">
             <i class="ti ti-broadcast text-2xl text-primary"></i>
-            <h3 class="font-semibold">Peer-to-Peer</h3>
-            <p class="text-sm text-base-content/70">Direct WebRTC connection (PeerJS) for a fast, low-latency scanning
-              experience.</p>
+            <h3 class="font-semibold" data-en="Peer-to-peer WebRTC" data-zh="点对点 WebRTC">点对点 WebRTC</h3>
+            <p class="text-sm text-base-content/70" data-en="Scan data travels directly between phone and PC over an encrypted WebRTC connection."
+              data-zh="扫码数据通过加密的 WebRTC 连接在手机和电脑之间直接传输。">扫码数据通过加密的 WebRTC 连接在手机和电脑之间直接传输。</p>
           </div>
         </div>
       </div>
     </section>
 
-    <footer class="text-center py-14 text-sm text-base-content/50">
-      <a href="https://github.com/newish0/linked-scanner" class="link link-hover">github.com/newish0/linked-scanner</a>
+    <section class="py-8">
+      <div class="alert alert-info items-start">
+        <i class="ti ti-info-circle text-xl"></i>
+        <div>
+          <h3 class="font-semibold" data-en="Tip: type into another app" data-zh="提示：输入到其他程序">提示：输入到其他程序</h3>
+          <p class="text-sm" data-en="The receiver can stay open in the background. Click the destination input first, then use the phone. Elevated apps and Windows secure screens may reject injected input."
+            data-zh="接收端可以放到后台运行。先点中目标输入框，再用手机扫码。以管理员权限运行的程序和 Windows 安全界面可能拒绝模拟输入。">接收端可以放到后台运行。先点中目标输入框，再用手机扫码。以管理员权限运行的程序和 Windows 安全界面可能拒绝模拟输入。</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center py-12 text-sm text-base-content/50 space-y-2">
+      <div>
+        <a href="https://github.com/gzw603/gzw-scanner" class="link link-hover">github.com/gzw603/gzw-scanner</a>
+      </div>
+      <div>
+        <span data-en="MIT licensed. Based on Linked Scanner by Newish0." data-zh="MIT 许可证。基于 Newish0 的 Linked Scanner 项目。">MIT 许可证。基于 Newish0 的 Linked Scanner 项目。</span>
+      </div>
     </footer>
   </div>
 
   <script>
-    // ponytail: one GH API call, no build step / no framework
-    const REPO = "newish0/linked-scanner";
-    const OS_MATCH = {
-      windows: /\.(exe|msi)$/i,
-      "mac-arm64": /aarch64.*\.dmg$/i,
-      linux: /\.(appimage|deb)$/i,
+    const REPO = "gzw603/gzw-scanner";
+    const RELEASES_URL = `https://github.com/${REPO}/releases/latest`;
+    const LANG_KEY = "gzw-scanner-site-lang";
+    let language = localStorage.getItem(LANG_KEY) || (navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en");
+    let releaseTag = "";
+    let releaseError = false;
+
+    const title = {
+      zh: "Gzw Scanner — 手机扫码，电脑输入",
+      en: "Gzw Scanner — Scan with your phone, type on your PC",
     };
 
-    function detectOS() {
-      const ua = navigator.userAgent;
-      if (/Mac/.test(ua)) return "mac-arm64";
-      if (/Win/.test(ua)) return "windows";
-      if (/Linux/.test(ua)) return "linux";
-      return "windows";
-    }
-
-    const select = document.getElementById("os-select");
-    const statusEl = document.getElementById("status");
-    const downloadBtn = document.getElementById("download-btn");
-    select.value = detectOS();
-
-    let assets = [];
-
-    async function loadRelease() {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
-        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-        const data = await res.json();
-        assets = data.assets || [];
-        statusEl.textContent = `Latest version: ${data.tag_name}`;
-      } catch (e) {
-        statusEl.textContent = "Couldn't fetch latest release — check the GitHub releases page instead.";
-        statusEl.classList.add("text-error");
+    function updateStatus() {
+      const status = document.getElementById("release-status");
+      if (releaseError) {
+        status.textContent = language === "zh"
+          ? "无法读取最新版本，请打开 GitHub Releases 下载。"
+          : "Could not load the latest release. Open GitHub Releases instead.";
+        status.classList.add("text-error");
+      } else if (releaseTag) {
+        status.textContent = language === "zh" ? `最新版本：${releaseTag}` : `Latest version: ${releaseTag}`;
+      } else {
+        status.textContent = language === "zh" ? "正在检查最新版本..." : "Detecting the latest release...";
       }
     }
 
-    function findAsset(os) {
-      return assets.find(a => OS_MATCH[os].test(a.name));
+    function applyLanguage(next) {
+      language = next;
+      localStorage.setItem(LANG_KEY, language);
+      document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+      document.title = title[language];
+
+      for (const element of document.querySelectorAll("[data-zh][data-en]")) {
+        element.textContent = element.dataset[language];
+      }
+      for (const button of document.querySelectorAll("[data-lang-button]")) {
+        button.classList.toggle("btn-active", button.dataset.langButton === language);
+        button.setAttribute("aria-pressed", String(button.dataset.langButton === language));
+      }
+      updateStatus();
     }
 
-    downloadBtn.addEventListener("click", () => {
-      const os = select.value;
-      const asset = findAsset(os);
-      window.location.href = asset ? asset.browser_download_url : `https://github.com/${REPO}/releases/latest`;
-    });
+    for (const button of document.querySelectorAll("[data-lang-button]")) {
+      button.addEventListener("click", () => applyLanguage(button.dataset.langButton));
+    }
 
+    async function loadRelease() {
+      try {
+        const response = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`);
+        if (!response.ok) throw new Error(`GitHub API ${response.status}`);
+        const release = await response.json();
+        releaseTag = release.tag_name;
+
+        const setup = (release.assets || []).find((asset) => asset.name === "Gzw Scanner-Setup.exe");
+        const portable = (release.assets || []).find((asset) => asset.name === "Gzw Scanner-Portable.exe");
+        document.getElementById("setup-download").href = setup?.browser_download_url || RELEASES_URL;
+        document.getElementById("portable-download").href = portable?.browser_download_url || RELEASES_URL;
+      } catch {
+        releaseError = true;
+      }
+      updateStatus();
+    }
+
+    applyLanguage(language);
     loadRelease();
   </script>
 </body>

@@ -1,87 +1,84 @@
-<h1 align='center'>
-  Linked Scanner
-</h1>
+# Gzw Scanner
 
-<p align="center">
-A lightweight application that turns your smartphone into a wireless barcode scanner for your computer. The app establishes a peer-to-peer connection between your phone and computer, allowing you to seamlessly scan barcodes using your phone's camera and have the results automatically inputted on your computer.
-</p>
+手机扫码，电脑输入。手机打开扫码网页，电脑运行 Windows 接收端；扫码后，Unicode 文本和按键会输入到电脑当前光标位置。
 
-<p align="center">
-    <a href="https://github.com/newish0/linked-scanner/releases"><img src="https://img.shields.io/github/downloads/newish0/linked-scanner/total?style=for-the-badge">
-    <a href="https://github.com/newish0/linked-scanner/releases/latest">
-        <img src="https://img.shields.io/github/v/release/newish0/linked-scanner?style=for-the-badge">
-    </a>
-    <img src="https://img.shields.io/github/release-date/newish0/linked-scanner?style=for-the-badge">
-    <img src="https://img.shields.io/github/package-json/v/newish0/linked-scanner?style=for-the-badge">
-    <a href="#">
-        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/newish0/linked-scanner?style=for-the-badge">
-    </a>&nbsp;&nbsp;
-</p>
+Scan with your phone, type on your PC. Open the scanner PWA on your phone and run the Windows receiver. Scanned Unicode text and key actions are injected into the focused input on the computer.
 
-<br />
+## 功能 / Features
 
-## Getting Started
+- Unicode 文本：中文、英文、Emoji、重音字符等。
+- 独立按键：空格、回车、Tab。
+- 组合快捷键：`Ctrl+V`、`Ctrl+Shift+Tab`、`Shift+Enter`、`Alt+F4` 等。
+- 最多四个自定义快捷键按钮。
+- 扫码内容标记：`{{SPACE}}`、`{{ENTER}}`、`{{TAB}}`、`{{KEY:Ctrl+V}}`。
+- 可配置前缀、后缀和扫码后的自动按键。
+- 扫码历史保留完整事件，可精确重发。
+- 中英文界面，默认跟随系统语言，可手动切换。
+- WebRTC 点对点传输，不经过业务服务器中转。
 
-### Installation
+## 下载 / Download
 
-Install the desktop app (Receiver) via the [release page](https://github.com/Newish0/linked-scanner/releases).
+- [Gzw Scanner-Setup.exe](https://github.com/gzw603/gzw-scanner/releases/latest)：推荐安装版，需要时会安装 WebView2。
+- [Gzw Scanner-Portable.exe](https://github.com/gzw603/gzw-scanner/releases/latest)：便携版，无需安装，但电脑仍需具备 WebView2。
+- [手机扫码端](https://gzw603.github.io/gzw-scanner/scanner/)：直接在手机浏览器打开，可添加到主屏幕。
 
-| [Windows installer](https://github.com/newish0/linked-scanner/releases/latest/) | [macOS (Apple Silicon) installer](https://github.com/newish0/linked-scanner/releases/latest/) |
-| :-----------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
+Windows 10/11 x64。应用未使用代码签名证书，SmartScreen 可能显示警告；确认来源后选择“更多信息”→“仍要运行”。
 
-Open the Scanner PWA on a mobile device.
+## 使用 / Usage
 
-| [Scanner Web App](https://newish0.github.io/linked-scanner/scanner) |
-| :-----------------------------------------------------------------: |
+1. 在电脑上运行接收端，保持窗口运行。
+2. 手机和电脑通常连接同一个 Wi-Fi；公网用于加载扫码网页和建立 WebRTC 信令。
+3. 手机浏览器打开扫码端，扫描电脑上的连接二维码。
+4. 点中其他程序中要输入的位置，然后在手机上扫码。
+5. 需要空格、回车、Tab 或快捷键时，使用扫码页下方的按钮。
 
-## Key Features
+接收端可以放在后台。先点击目标输入框，再扫码。以管理员权限运行的程序和 Windows 安全界面可能拒绝模拟输入。
 
-- **Wireless Scanning**: Use phone camera as barcode scanner - no extra hardware needed.
-- **Plug and Play**: Install Receiver on desktop, open Scanner on phone, scan QR code to pair.
-- **Cross-Platform**: Windows, macOS, Linux desktop (Tauri) + PWA on any mobile browser.
-- **Peer-to-Peer**: Direct connection via WebRTC (PeerJS) for low-latency scans.
+## 扫码内容标记 / Content Markers
 
-## Development
+标记只对扫码内容生效，前缀和后缀按普通文本发送。无法识别的标记会保留为原文本。
 
-### Prerequisites
+```text
+ABC{{TAB}}123{{ENTER}}
+{{KEY:Ctrl+V}}
+产品-{{SPACE}}001
+```
 
-- [pnpm](https://pnpm.io/)
-- [Rust](https://rustup.rs/) (for Tauri desktop app)
+支持的组合键修饰符：`Ctrl`、`Alt`、`Shift`、`Win`。支持字母、数字、`F1`-`F12`、方向键、`Home`、`End`、`PageUp`、`PageDown`、`Esc`、`Backspace`、`Delete`、`Insert`、`Space`、`Enter`、`Tab`。不支持鼠标、媒体键和 `Ctrl+Alt+Delete`。
 
-### Project Structure
+## 开发 / Development
 
-The repo is a pnpm workspace monorepo with three packages:
-
-1. **`receiver/`** - Desktop app (Tauri + SolidJS)
-2. **`scanner/`** - PWA mobile app (SolidJS)
-3. **`core/`** - Shared components, stores, and utilities
-
-### Quick Start
+环境要求：Node.js、pnpm、Rust；构建 Windows 安装包需要 Windows 或 GitHub Actions。
 
 ```bash
-git clone https://github.com/Newish0/linked-scanner.git
-cd linked-scanner
 pnpm install
+pnpm test
+pnpm --filter scanner build
+pnpm --filter receiver build
+cd receiver/src-tauri && cargo test --lib
 ```
 
-#### Developing the Desktop App (Receiver)
+本地运行接收端：
 
 ```bash
-cd receiver
-pnpm tauri dev
+pnpm --filter receiver tauri dev
 ```
 
-Uses Tauri v2 with SolidJS + Tailwind (DaisyUI) + TanStack Router.
-
-#### Developing the PWA Mobile App (Scanner)
+本地运行扫码端：
 
 ```bash
-cd scanner
-pnpm dev
+pnpm --filter scanner dev
 ```
 
-Uses SolidJS + Tailwind (DaisyUI) + TanStack Router + ZXing for barcode scanning.
+发布由 `.github/workflows/build-release.yml` 完成。推送到 `main` 会发布手机扫码端到 GitHub Pages；推送 `v*` 标签会生成 Windows 安装版和便携版 EXE。
 
-### Contributing
+## 技术栈 / Stack
 
-Contributions are welcome! If you find a bug or have an idea for an improvement, please open an issue or submit a pull request.
+- Windows 接收端：Tauri 2 + SolidJS + Rust + enigo
+- 手机扫码端：SolidJS PWA + ZXing
+- 通信：PeerJS / WebRTC
+- 共享代码：`core/`
+
+## 许可证 / License
+
+MIT。本项目基于 [Newish0/linked-scanner](https://github.com/Newish0/linked-scanner) 修改，保留上游 MIT 版权声明。详见 [LICENSE](LICENSE)。

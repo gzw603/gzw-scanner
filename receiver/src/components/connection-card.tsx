@@ -1,6 +1,7 @@
 import { IconDeviceMobile } from "@tabler/icons-solidjs";
 import { getPeerName } from "core/stores/peer-connection";
 import type { DataConnection } from "peerjs";
+import { t } from "core/i18n";
 
 export function ConnectionCard(props: { conn: DataConnection }) {
     const handleDisconnect = () => {
@@ -13,11 +14,11 @@ export function ConnectionCard(props: { conn: DataConnection }) {
             </div>
             <div class="flex-1 min-w-0">
                 <h3 class="font-bold truncate">{getPeerName(props.conn.peer) || props.conn.peer}</h3>
-                <span class="badge badge-success badge-sm">Connected</span>
+                <span class="badge badge-success badge-sm">{t("common.connected")}</span>
             </div>
             <div>
                 <button class="btn btn-error btn-sm" onClick={handleDisconnect}>
-                    Disconnect
+                    {t("common.disconnect")}
                 </button>
             </div>
         </div>

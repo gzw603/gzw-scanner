@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-solidjs";
 import { createFileRoute } from "@tanstack/solid-router";
 import { connect } from "core/stores/peer-connection";
+import { localizeError, t } from "core/i18n";
 import { createSignal, Match, Switch } from "solid-js";
 import { z } from "zod";
 
@@ -46,7 +47,7 @@ function RouteComponent() {
             .catch((err) =>
                 setState({
                     status: "error",
-                    message: err instanceof Error ? err.message : String(err),
+                    message: localizeError(err),
                 }),
             );
     };
@@ -64,38 +65,36 @@ function RouteComponent() {
                     <Switch>
                         <Match when={state().status === "idle"}>
                             <IconPlugConnectedX class="size-12 text-warning" />
-                            <h2 class="card-title">No connection ID</h2>
-                            <p class="text-base-content/70">
-                                This page needs a receiver ID in the URL to connect.
-                            </p>
+                            <h2 class="card-title">{t("conn.noIdTitle")}</h2>
+                            <p class="text-base-content/70">{t("conn.noIdDescription")}</p>
                             <div class="card-actions mt-2">
                                 <button
                                     class="btn btn-soft btn-sm btn-primary"
                                     onClick={() => navigate({ to: "/" })}
                                 >
-                                    Go home
+                                    {t("common.goHome")}
                                 </button>
                             </div>
                         </Match>
 
                         <Match when={state().status === "connecting"}>
                             <IconLoader2 class="size-12 animate-spin text-primary" />
-                            <h2 class="card-title">Connecting…</h2>
+                            <h2 class="card-title">{t("conn.connectingTitle")}</h2>
                             <p class="text-base-content/70">
-                                Establishing connection to receiver
+                                {t("conn.connectingPrefix")}
                                 <span class="font-mono"> {peerId}</span>.
                             </p>
                         </Match>
 
                         <Match when={state().status === "success"}>
                             <IconCircleCheck class="size-12 text-success" />
-                            <h2 class="card-title">Connected!</h2>
-                            <p class="text-base-content/70">Redirecting to scan…</p>
+                            <h2 class="card-title">{t("conn.successTitle")}</h2>
+                            <p class="text-base-content/70">{t("conn.redirecting")}</p>
                         </Match>
 
                         <Match when={state().status === "error"}>
                             <IconAlertTriangle class="size-12 text-error" />
-                            <h2 class="card-title">Connection failed</h2>
+                            <h2 class="card-title">{t("conn.failedTitle")}</h2>
                             <div class="alert alert-error text-sm">
                                 <span>
                                     {(state() as { status: "error"; message: string }).message}
@@ -106,13 +105,13 @@ function RouteComponent() {
                                     class="btn btn-soft btn-sm btn-ghost"
                                     onClick={() => navigate({ to: "/" })}
                                 >
-                                    Go home
+                                    {t("common.goHome")}
                                 </button>
                                 <button
                                     class="btn btn-soft btn-sm btn-primary"
                                     onClick={connectToPeer}
                                 >
-                                    Retry
+                                    {t("common.retry")}
                                 </button>
                             </div>
                         </Match>

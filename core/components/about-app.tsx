@@ -1,3 +1,5 @@
+import { t } from "../i18n";
+
 type AboutAppProps = {
     appName: string;
     appSuperName: string;
@@ -29,16 +31,16 @@ export default function AboutApp(props: AboutAppProps) {
 
             <div class="text-xs ml-16 pl-2">
                 <div>
-                    <span>Version: {props.version}</span>
+                    <span>{t("about.version", { version: props.version })}</span>
                 </div>
                 <div>
-                    <span>License: </span>
+                    <span>{t("about.license")} </span>
                     <a class="link link-primary" href={props.licenseUrl} target="_blank">
                         {props.license}
                     </a>
                 </div>
                 <div>
-                    <span>Github: </span>
+                    <span>{t("about.github")} </span>
                     <a class="link link-primary" href={props.githubUrl} target="_blank">
                         {shortGhUrl()}
                     </a>

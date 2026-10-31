@@ -1,5 +1,6 @@
 import { createEffect, type JSX, Show } from "solid-js";
 import { IconX } from "@tabler/icons-solidjs";
+import { t } from "../i18n";
 
 export function Modal(props: {
     open: boolean;
@@ -21,7 +22,10 @@ export function Modal(props: {
             <dialog ref={dialogRef} class="modal modal-bottom sm:modal-middle" onClose={props.onClose}>
             <div class="modal-box">
                 <form method="dialog">
-                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    <button
+                        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                        aria-label={t("common.close")}
+                    >
                         <IconX class="size-4" />
                     </button>
                 </form>
@@ -31,7 +35,7 @@ export function Modal(props: {
                 {props.children}
             </div>
             <form method="dialog" class="modal-backdrop">
-                <button>close</button>
+                <button>{t("common.close")}</button>
             </form>
         </dialog>
     );

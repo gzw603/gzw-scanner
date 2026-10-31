@@ -17,18 +17,27 @@ import {
 import { appToast } from "../components/app-toast";
 import { connect, sendScan, getPeerName } from "../stores/peer-connection";
 import { cn } from "../utils/tw";
+import { t, localeTag, localizeError } from "../i18n";
+import { parseScannedContent } from "../utils/input-events";
 
-const timeFormatter = new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    month: "short",
-    day: "numeric",
-});
-
-const formatTimestamp = (timestamp: number) => timeFormatter.format(new Date(timestamp));
+const formatTimestamp = (timestamp: number) =>
+    new Intl.DateTimeFormat(localeTag(), {
+        hour: "2-digit",
+        minute: "2-digit",
+        month: "short",
+        day: "numeric",
+    }).format(new Date(timestamp));
 
 const handleReplay = (entry: HistoryEntry & { type: "scan-sent" }) => {
-    sendScan(entry.content);
+    void sendScan(
+        entry.content,
+        entry.events ?? [
+            ...parseScannedContent(entry.content),
+            { kind: "key", combo: "Enter" },
+        ],
+    ).catch((error) => {
+        appToast.error(t("scan.sendFailed", { error: localizeError(error) }));
+    });
 };
 
 let isReconnecting = false;
@@ -37,15 +46,14 @@ const handleReconnect = async (entry: HistoryEntry & { type: "connection" }) => 
     if (isReconnecting) return;
     isReconnecting = true;
     const label = getPeerName(entry.peerId) ?? entry.peerId;
-    appToast.loading(`Reconnecting to ${label}...`, { id: "reconnect" });
+    appToast.loading(t("history.reconnecting", { name: label }), { id: "reconnect" });
     try {
         await connect(entry.peerId);
-        appToast.success(`Reconnected to ${label}!`, { id: "reconnect" });
+        appToast.success(t("history.reconnected", { name: label }), { id: "reconnect" });
     } catch (err) {
-        appToast.error(
-            "Failed to reconnect: " + (err instanceof Error ? err.message : String(err)),
-            { id: "reconnect" },
-        );
+        appToast.error(t("history.failedReconnect", { error: localizeError(err) }), {
+            id: "reconnect",
+        });
     } finally {
         isReconnecting = false;
     }
@@ -74,7 +82,7 @@ function HistoryRow(props: { entry: HistoryEntry }) {
             </Switch>
 
             <div class="list-col-grow min-w-0">
-                <Switch fallback={<div class="truncate">Connected to peer</div>}>
+                <Switch fallback={<div class="truncate">{t("history.connectedToPeer")}</div>}>
                     <Match when={isScanSentHistory(props.entry) ? props.entry : undefined}>
                         {(entry) => <div class="truncate font-medium">{entry().content}</div>}
                     </Match>
@@ -84,7 +92,7 @@ function HistoryRow(props: { entry: HistoryEntry }) {
                     <Match when={isConnectionHistory(props.entry) ? props.entry : undefined}>
                         {(entry) => (
                             <div class="truncate">
-                                Connected to{" "}
+                                {t("history.connectedTo")}{" "}
                                 <span class="font-semibold">
                                     {getPeerName(entry().peerId) ?? entry().peerId}
                                 </span>
@@ -102,12 +110,14 @@ function HistoryRow(props: { entry: HistoryEntry }) {
                                     "badge-warning": entry().receiverIds.length === 0,
                                 })}
                             >
-                                <Switch fallback={<>No receiver</>}>
+                                <Switch fallback={<>{t("history.noReceiver")}</>}>
                                     <Match when={entry().receiverIds.length === 1}>
-                                        1 receiver
+                                        {t("history.oneReceiver")}
                                     </Match>
                                     <Match when={entry().receiverIds.length > 1}>
-                                        {entry().receiverIds.length} receivers
+                                        {t("history.receiverCount", {
+                                            count: entry().receiverIds.length,
+                                        })}
                                     </Match>
                                 </Switch>
                             </span>
@@ -116,7 +126,9 @@ function HistoryRow(props: { entry: HistoryEntry }) {
                     <Show when={isScanReceivedHistory(props.entry) ? props.entry : undefined}>
                         {(entry) => (
                             <span class="badge badge-soft badge-info badge-sm normal-case">
-                                from {getPeerName(entry().scannerId) ?? entry().scannerId}
+                                {t("history.from", {
+                                    name: getPeerName(entry().scannerId) ?? entry().scannerId,
+                                })}
                             </span>
                         )}
                     </Show>
@@ -128,7 +140,7 @@ function HistoryRow(props: { entry: HistoryEntry }) {
                     <button
                         type="button"
                         class="btn btn-square btn-ghost"
-                        aria-label="Replay scan"
+                        aria-label={t("history.replayScan")}
                         onClick={() => handleReplay(entry())}
                     >
                         <IconPlayerPlay class="size-[1.2em]" />
@@ -141,7 +153,7 @@ function HistoryRow(props: { entry: HistoryEntry }) {
                     <button
                         type="button"
                         class="btn btn-square btn-ghost"
-                        aria-label="Reconnect"
+                        aria-label={t("history.reconnect")}
                         onClick={() => void handleReconnect(entry())}
                     >
                         <IconRefresh class="size-[1.2em]" />
@@ -162,7 +174,7 @@ export function HistoryList() {
                 fallback={
                     <li class="flex flex-col items-center gap-2 p-10 text-base-content/50">
                         <IconHistoryOff class="size-8" />
-                        <span class="text-sm">No history yet</span>
+                        <span class="text-sm">{t("history.noHistory")}</span>
                     </li>
                 }
             >
