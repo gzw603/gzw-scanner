@@ -19,6 +19,7 @@ export function DeviceList() {
                     <div
                         tabindex="0"
                         role="button"
+                        aria-label={t("receiver.scanners.connectedDevices")}
                         class={cn(
                             "btn btn-lg btn-circle",
                             isConnected() ? "btn-success" : "btn-warning",

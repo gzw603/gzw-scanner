@@ -1,9 +1,19 @@
 import AboutApp from "core/components/about-app";
 import ResetApp from "core/components/reset-app";
+import { ScanMarkerHelp, ShortcutSettings } from "core/components/scan-input-settings-controls";
 import { Settings, type SettingSection } from "core/components/settings";
 import { t, preferredLocale, setPreferredLocale, type LocalePreference } from "core/i18n";
 import { deviceName, deviceId, setDeviceName } from "core/stores/device";
 import { maxHistoryLength, setMaxHistoryLength } from "core/stores/history";
+import {
+    autoAction,
+    scanPrefix,
+    scanSuffix,
+    setAutoAction,
+    setScanPrefix,
+    setScanSuffix,
+} from "core/stores/scan-input-settings";
+import { AUTO_ACTION_OPTIONS, type AutoAction } from "core/utils/input-events";
 import { createMemo, untrack } from "solid-js";
 
 export default function ReceiverSettings() {
@@ -38,6 +48,62 @@ export default function ReceiverSettings() {
                     readOnly: true,
                     value: untrack(deviceId),
                     onChange: () => void {},
+                },
+            ],
+        },
+        {
+            title: t("scanInput.title"),
+            description: t("scanInput.description"),
+            settings: [
+                {
+                    id: "scan-prefix",
+                    label: t("scanInput.prefix"),
+                    description: t("scanInput.prefixDescription"),
+                    type: "input",
+                    value: untrack(scanPrefix),
+                    onChange: setScanPrefix,
+                },
+                {
+                    id: "scan-suffix",
+                    label: t("scanInput.suffix"),
+                    description: t("scanInput.suffixDescription"),
+                    type: "input",
+                    value: untrack(scanSuffix),
+                    onChange: setScanSuffix,
+                },
+                {
+                    id: "scan-auto-action",
+                    label: t("scanInput.autoAction"),
+                    description: t("scanInput.autoActionDescription"),
+                    type: "select",
+                    value: untrack(autoAction),
+                    onChange: (value) => setAutoAction(value as AutoAction),
+                    options: AUTO_ACTION_OPTIONS.map((option) => ({
+                        value: option.value,
+                        label: t(option.labelKey),
+                    })),
+                },
+            ],
+        },
+        {
+            title: t("shortcuts.title"),
+            settings: [
+                {
+                    id: "shortcut-buttons",
+                    type: "custom",
+                    position: "stacked",
+                    render: () => <ShortcutSettings />,
+                },
+            ],
+        },
+        {
+            title: t("scanInput.markersTitle"),
+            settings: [
+                {
+                    id: "scan-markers",
+                    type: "custom",
+                    position: "stacked",
+                    render: () => <ScanMarkerHelp />,
                 },
             ],
         },

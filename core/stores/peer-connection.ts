@@ -4,6 +4,9 @@ import { makePersisted } from "@solid-primitives/storage";
 import { deviceId, deviceName } from "./device";
 import { addConnectionHistory, addScanSentHistory, addScanReceivedHistory } from "./history";
 import { normalizeKeyCombo, type InputEvent } from "../utils/input-events";
+import { localizeDeviceName } from "../utils/names";
+import { resolvedLocale } from "../i18n";
+import { isScanInputSettings, type ScanInputSettings } from "./scan-input-settings";
 
 // ===== types =====
 
@@ -23,7 +26,12 @@ type HelloData = {
     name: string;
 };
 
-type Data = ScanData | KeyData | HelloData;
+type ScanInputSettingsData = {
+    type: "scan-input-settings";
+    settings: ScanInputSettings;
+};
+
+type Data = ScanData | KeyData | HelloData | ScanInputSettingsData;
 
 type DataHandler = (conn: DataConnection, data: Data) => void;
 
@@ -41,7 +49,16 @@ const [peerNames, setPeerNames] = makePersisted(createSignal<Map<string, string>
     serialize: (value) => JSON.stringify([...value.entries()]),
     deserialize: (value) => new Map(JSON.parse(value)),
 });
-export const getPeerName = (peerId: string) => peerNames().get(peerId);
+export const getPeerName = (peerId: string) => {
+    const name = peerNames().get(peerId);
+    return name ? localizeDeviceName(peerId, name, resolvedLocale()) : undefined;
+};
+
+const [lastPeerId, setLastPeerId] = makePersisted(createSignal(""), {
+    name: "lastPeerId",
+    storage: localStorage,
+});
+export { lastPeerId };
 
 const peer = new Peer(deviceId(), {
     config: {
@@ -86,6 +103,10 @@ const isValidData = (data: unknown): data is Data => {
 
     if (d.type === "hello") {
         return "name" in data && typeof (data as { name: unknown }).name === "string";
+    }
+
+    if (d.type === "scan-input-settings") {
+        return isScanInputSettings((data as { settings?: unknown }).settings);
     }
 
     return false;
@@ -232,16 +253,65 @@ export const connect = async (id: string, timeout = 30000) => {
             metadata: { id: deviceId },
         });
 
-        const timeoutId = setTimeout(() => {
+        let settled = false;
+        let timeoutId: ReturnType<typeof setTimeout>;
+
+        const cleanup = () => {
+            clearTimeout(timeoutId);
+            conn.off("open", handleOpen);
+            conn.off("error", handleError);
+            conn.off("close", handleClose);
+            peer.off("error", handlePeerError);
+        };
+
+        const rejectOnce = (error: unknown) => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            reject(error);
+        };
+
+        const handleOpen = () => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            registerConnection(conn, id);
+            setLastPeerId(id);
+            resolve(conn);
+        };
+
+        const handleError = (error: unknown) => {
+            rejectOnce(error);
             conn.close();
-            reject(new Error("Connection timed out"));
+        };
+
+        const handleClose = () => {
+            rejectOnce(Object.assign(new Error("Connection closed"), { type: "connection-closed" }));
+        };
+
+        const handlePeerError = (error: unknown) => {
+            const type =
+                typeof error === "object" && error !== null && "type" in error
+                    ? (error as { type?: unknown }).type
+                    : undefined;
+            const message =
+                typeof error === "object" && error !== null && "message" in error
+                    ? String((error as { message?: unknown }).message)
+                    : "";
+            if (type !== "peer-unavailable" || !message.includes(id)) return;
+            rejectOnce(error);
+            conn.close();
+        };
+
+        timeoutId = setTimeout(() => {
+            conn.close();
+            rejectOnce(new Error("Connection timed out"));
         }, timeout);
 
-        conn.on("open", () => {
-            clearTimeout(timeoutId);
-            registerConnection(conn, id);
-            resolve(conn);
-        });
+        conn.on("open", handleOpen);
+        conn.on("error", handleError);
+        conn.on("close", handleClose);
+        peer.on("error", handlePeerError);
     });
 };
 
@@ -271,5 +341,12 @@ export const sendKey = async (combo: string) => {
     await sendData({
         type: "key",
         combo: normalized,
+    });
+};
+
+export const sendScanInputSettings = async (settings: ScanInputSettings) => {
+    await sendData({
+        type: "scan-input-settings",
+        settings,
     });
 };

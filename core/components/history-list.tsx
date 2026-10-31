@@ -1,4 +1,4 @@
-import { For, Show, Switch, Match, createMemo } from "solid-js";
+import { For, Show, Switch, Match, createMemo, createSignal } from "solid-js";
 import {
     IconUpload,
     IconDownload,
@@ -9,6 +9,7 @@ import {
 } from "@tabler/icons-solidjs";
 import {
     history,
+    clearHistory,
     type HistoryEntry,
     isConnectionHistory,
     isScanSentHistory,
@@ -19,6 +20,7 @@ import { connect, sendScan, getPeerName } from "../stores/peer-connection";
 import { cn } from "../utils/tw";
 import { t, localeTag, localizeError } from "../i18n";
 import { parseScannedContent } from "../utils/input-events";
+import { Modal } from "./modal";
 
 const formatTimestamp = (timestamp: number) =>
     new Intl.DateTimeFormat(localeTag(), {
@@ -166,20 +168,57 @@ function HistoryRow(props: { entry: HistoryEntry }) {
 
 export function HistoryList() {
     const sorted = createMemo(() => [...history()].sort((a, b) => b.timestamp - a.timestamp));
+    const [confirmClear, setConfirmClear] = createSignal(false);
+
+    const handleClear = () => {
+        clearHistory();
+        setConfirmClear(false);
+        appToast.success(t("history.cleared"));
+    };
 
     return (
-        <ul class="list bg-base-200 rounded-box shadow-md">
-            <Show
-                when={sorted().length > 0}
-                fallback={
-                    <li class="flex flex-col items-center gap-2 p-10 text-base-content/50">
-                        <IconHistoryOff class="size-8" />
-                        <span class="text-sm">{t("history.noHistory")}</span>
-                    </li>
-                }
+        <>
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-lg font-bold">{t("history.title")}</h2>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-ghost"
+                    disabled={sorted().length === 0}
+                    onClick={() => setConfirmClear(true)}
+                >
+                    {t("history.clear")}
+                </button>
+            </div>
+
+            <ul class="list bg-base-200 rounded-box shadow-md">
+                <Show
+                    when={sorted().length > 0}
+                    fallback={
+                        <li class="flex flex-col items-center gap-2 p-10 text-base-content/50">
+                            <IconHistoryOff class="size-8" />
+                            <span class="text-sm">{t("history.noHistory")}</span>
+                        </li>
+                    }
+                >
+                    <For each={sorted()}>{(entry) => <HistoryRow entry={entry} />}</For>
+                </Show>
+            </ul>
+
+            <Modal
+                open={confirmClear()}
+                onClose={() => setConfirmClear(false)}
+                title={t("history.clearTitle")}
             >
-                <For each={sorted()}>{(entry) => <HistoryRow entry={entry} />}</For>
-            </Show>
-        </ul>
+                <p class="text-base-content/70">{t("history.clearDescription")}</p>
+                <div class="modal-action">
+                    <button type="button" class="btn" onClick={() => setConfirmClear(false)}>
+                        {t("common.cancel")}
+                    </button>
+                    <button type="button" class="btn btn-error" onClick={handleClear}>
+                        {t("history.clearAction")}
+                    </button>
+                </div>
+            </Modal>
+        </>
     );
 }

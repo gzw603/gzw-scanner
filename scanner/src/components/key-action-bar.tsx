@@ -2,7 +2,7 @@ import { For } from "solid-js";
 import { sendKey } from "core/stores/peer-connection";
 import { localizeError, t } from "core/i18n";
 import { normalizeKeyCombo } from "core/utils/input-events";
-import { shortcutButtons } from "@/stores/scanner-settings";
+import { shortcutButtons } from "core/stores/scan-input-settings";
 import appToast from "core/components/app-toast";
 
 const FIXED_ACTIONS = [

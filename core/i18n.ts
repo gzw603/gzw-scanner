@@ -24,6 +24,7 @@ const en = {
     "common.disconnect": "Disconnect",
     "common.deviceLabel": "Device {id}",
     "common.dismiss": "Dismiss",
+    "common.cancel": "Cancel",
     "language.title": "Language",
     "language.description": "Interface language. Changes apply immediately.",
     "language.system": "System",
@@ -40,6 +41,7 @@ const en = {
     "settings.entries": "{count} entries",
     "settings.scanRatio": "Scan Area Size",
     "settings.scanRatioDescription": "Portion of the viewport used for scanning.",
+    "settings.desktopManagedHint": "Scan input, shortcut buttons, and content markers are managed in the desktop app and sync automatically after connecting.",
     "settings.contrast": "Contrast",
     "settings.brightness": "Brightness",
     "settings.resetApp": "Reset App",
@@ -65,13 +67,15 @@ const en = {
     "scan.connectHint": "Scan the QR code on the receiver to connect.",
     "scan.cameraError": "Camera error: {error}",
     "scan.sendFailed": "Could not send to receiver: {error}",
+    "scan.sent": "Sent to receiver",
+    "scan.notSent": "Not sent: receiver is not connected.",
     "scan.actions": "Key actions",
     "scan.space": "Space",
     "scan.enter": "Enter",
     "scan.tab": "Tab",
     "scan.customShortcut": "Shortcut {index}",
     "scanInput.title": "Scan Input",
-    "scanInput.description": "Text and keys sent around scanned content.",
+    "scanInput.description": "Text and keys sent around scanned content. Changes sync to connected scanners.",
     "scanInput.prefix": "Prefix",
     "scanInput.prefixDescription": "Text sent before each scanned code.",
     "scanInput.suffix": "Suffix",
@@ -82,7 +86,7 @@ const en = {
     "scanInput.markersTitle": "Content Markers",
     "scanInput.markersDescription": "Markers work only inside scanned content. Unknown markers stay as literal text.",
     "shortcuts.title": "Shortcut Buttons",
-    "shortcuts.description": "Add up to four custom key buttons to the scan screen.",
+    "shortcuts.description": "Add up to four custom key buttons to the scan screen. Changes sync automatically.",
     "shortcuts.slot": "Shortcut {index}",
     "shortcuts.label": "Button label",
     "shortcuts.combo": "Key combination",
@@ -102,6 +106,12 @@ const en = {
     "history.reconnecting": "Reconnecting to {name}...",
     "history.reconnected": "Reconnected to {name}!",
     "history.failedReconnect": "Failed to reconnect: {error}",
+    "history.title": "History",
+    "history.clear": "Clear",
+    "history.clearTitle": "Clear history?",
+    "history.clearDescription": "All scan and connection history on this device will be deleted. This cannot be undone.",
+    "history.clearAction": "Clear history",
+    "history.cleared": "History cleared",
     "connection.waiting": "Waiting for connection",
     "connection.qrAlt": "Connection QR code",
     "connection.scanQrPrefix": "Scan this QR code or visit",
@@ -152,8 +162,21 @@ const en = {
     "onboarding.otherInstallDescriptionSuffix": "and choose \"Install app\" or \"Add to Home screen\".",
     "camera.cameraLabel": "Camera {id}",
     "camera.switchCamera": "Switch camera",
+    "camera.front": "Front camera",
+    "camera.back": "Back camera",
+    "camera.external": "External camera",
     "errors.alreadyConnected": "Already connected",
     "errors.connectionTimeout": "Connection timed out",
+    "errors.cameraPermissionDenied": "Camera access was denied. Allow camera permission in your browser settings.",
+    "errors.cameraNotFound": "No usable camera was found.",
+    "errors.cameraInUse": "The camera is busy or unavailable. Close other camera apps and retry.",
+    "errors.cameraUnsupported": "The selected camera does not support the requested settings.",
+    "errors.cameraFailed": "Could not access the camera.",
+    "errors.peerUnavailable": "The desktop receiver is offline or the connection link has expired.",
+    "errors.idTaken": "This device ID is already in use. Close the duplicate app tab and retry.",
+    "errors.network": "Network connection failed. Check your connection and retry.",
+    "errors.browserUnsupported": "This browser does not support the required WebRTC features.",
+    "errors.webrtc": "WebRTC connection failed. Check your network and retry.",
     "errors.unexpected": "An unexpected error occurred",
     "route.notFoundTitle": "Page not found",
     "route.notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
@@ -183,6 +206,7 @@ const zh: Record<MessageKey, string> = {
     "common.disconnect": "断开连接",
     "common.deviceLabel": "设备 {id}",
     "common.dismiss": "关闭提示",
+    "common.cancel": "取消",
     "language.title": "语言",
     "language.description": "界面语言，修改后立即生效。",
     "language.system": "跟随系统",
@@ -199,6 +223,7 @@ const zh: Record<MessageKey, string> = {
     "settings.entries": "{count} 条",
     "settings.scanRatio": "扫描区域大小",
     "settings.scanRatioDescription": "用于识别的屏幕区域比例。",
+    "settings.desktopManagedHint": "扫码输入、快捷键按钮和内容标记请在电脑端设置，连接后自动同步。",
     "settings.contrast": "对比度",
     "settings.brightness": "亮度",
     "settings.resetApp": "重置应用",
@@ -224,13 +249,15 @@ const zh: Record<MessageKey, string> = {
     "scan.connectHint": "扫描电脑上的二维码进行连接。",
     "scan.cameraError": "摄像头错误：{error}",
     "scan.sendFailed": "发送到接收端失败：{error}",
+    "scan.sent": "已发送到电脑",
+    "scan.notSent": "未发送：电脑端未连接。",
     "scan.actions": "按键操作",
     "scan.space": "空格",
     "scan.enter": "回车",
     "scan.tab": "制表符",
     "scan.customShortcut": "快捷键 {index}",
     "scanInput.title": "扫码输入",
-    "scanInput.description": "在扫码内容前后添加文本和按键。",
+    "scanInput.description": "在扫码内容前后添加文本和按键，修改后自动同步到已连接的手机。",
     "scanInput.prefix": "前缀",
     "scanInput.prefixDescription": "每次扫码内容之前发送的文本。",
     "scanInput.suffix": "后缀",
@@ -241,7 +268,7 @@ const zh: Record<MessageKey, string> = {
     "scanInput.markersTitle": "内容标记",
     "scanInput.markersDescription": "标记仅在扫码内容中生效，无法识别的标记会按原文本发送。",
     "shortcuts.title": "快捷键按钮",
-    "shortcuts.description": "最多添加四个自定义按键按钮到扫码界面。",
+    "shortcuts.description": "最多添加四个自定义按键按钮到扫码界面，修改后自动同步。",
     "shortcuts.slot": "快捷键 {index}",
     "shortcuts.label": "按钮名称",
     "shortcuts.combo": "按键组合",
@@ -261,6 +288,12 @@ const zh: Record<MessageKey, string> = {
     "history.reconnecting": "正在重新连接 {name}...",
     "history.reconnected": "已重新连接 {name}！",
     "history.failedReconnect": "重新连接失败：{error}",
+    "history.title": "历史记录",
+    "history.clear": "清空",
+    "history.clearTitle": "清空历史记录？",
+    "history.clearDescription": "此设备上的扫码记录和连接记录将全部删除，且无法恢复。",
+    "history.clearAction": "确认清空",
+    "history.cleared": "历史记录已清空",
     "connection.waiting": "等待连接",
     "connection.qrAlt": "连接二维码",
     "connection.scanQrPrefix": "扫描二维码，或在手机上访问",
@@ -311,8 +344,21 @@ const zh: Record<MessageKey, string> = {
     "onboarding.otherInstallDescriptionSuffix": "选择“安装应用”或“添加到主屏幕”。",
     "camera.cameraLabel": "摄像头 {id}",
     "camera.switchCamera": "切换摄像头",
+    "camera.front": "前置摄像头",
+    "camera.back": "后置摄像头",
+    "camera.external": "外接摄像头",
     "errors.alreadyConnected": "已经连接",
     "errors.connectionTimeout": "连接超时",
+    "errors.cameraPermissionDenied": "摄像头权限被拒绝，请在浏览器设置中允许访问摄像头。",
+    "errors.cameraNotFound": "没有找到可用的摄像头。",
+    "errors.cameraInUse": "摄像头正被其他应用占用或暂时不可用，请关闭其他相机应用后重试。",
+    "errors.cameraUnsupported": "当前摄像头不支持所选参数。",
+    "errors.cameraFailed": "无法访问摄像头。",
+    "errors.peerUnavailable": "电脑端未在线，或连接二维码已过期。",
+    "errors.idTaken": "当前设备连接标识已被占用，请关闭重复打开的应用页面后重试。",
+    "errors.network": "网络连接失败，请检查网络后重试。",
+    "errors.browserUnsupported": "当前浏览器不支持所需的 WebRTC 功能。",
+    "errors.webrtc": "WebRTC 连接失败，请检查网络后重试。",
     "errors.unexpected": "发生了意外错误",
     "route.notFoundTitle": "页面不存在",
     "route.notFoundDescription": "你访问的页面不存在或已被移动。",
@@ -352,8 +398,56 @@ export const t = (key: MessageKey, params?: Record<string, string | number>) => 
     return message;
 };
 
+const errorField = (error: unknown, key: "name" | "type" | "message") => {
+    if (typeof error !== "object" || error === null) return "";
+    const value = (error as Record<string, unknown>)[key];
+    return typeof value === "string" ? value : "";
+};
+
 export const localizeError = (error: unknown) => {
-    const message = error instanceof Error ? error.message : String(error);
+    const name = errorField(error, "name");
+    const type = errorField(error, "type");
+    const message = errorField(error, "message") || String(error);
+
+    switch (name) {
+        case "NotAllowedError":
+        case "PermissionDeniedError":
+        case "SecurityError":
+            return t("errors.cameraPermissionDenied");
+        case "NotFoundError":
+        case "DevicesNotFoundError":
+            return t("errors.cameraNotFound");
+        case "NotReadableError":
+        case "TrackStartError":
+            return t("errors.cameraInUse");
+        case "OverconstrainedError":
+        case "ConstraintNotSatisfiedError":
+            return t("errors.cameraUnsupported");
+        case "NotSupportedError":
+            return t("errors.cameraUnsupported");
+        case "AbortError":
+            return t("errors.cameraFailed");
+    }
+
+    switch (type) {
+        case "peer-unavailable":
+            return t("errors.peerUnavailable");
+        case "unavailable-id":
+            return t("errors.idTaken");
+        case "network":
+        case "server-error":
+        case "socket-error":
+        case "socket-closed":
+        case "disconnected":
+            return t("errors.network");
+        case "browser-incompatible":
+            return t("errors.browserUnsupported");
+        case "webrtc":
+        case "negotiation-failed":
+        case "connection-closed":
+            return t("errors.webrtc");
+    }
+
     if (message === "Already connected") return t("errors.alreadyConnected");
     if (message === "Connection timed out") return t("errors.connectionTimeout");
     return message || t("errors.unexpected");

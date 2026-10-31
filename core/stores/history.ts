@@ -74,6 +74,10 @@ export function addScanReceivedHistory(
     ]);
 }
 
+export function clearHistory() {
+    _setHistory([]);
+}
+
 // ===== type guards =====
 
 export function isConnectionHistory(entry: HistoryEntry): entry is ConnectionEntry {

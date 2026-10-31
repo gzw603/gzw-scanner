@@ -7,7 +7,7 @@ import { t } from "core/i18n";
 
 interface CodeScannerProps {
     onResult: (text: string) => void;
-    onError: (error: Error) => void;
+    onError: (error: unknown) => void;
     interval?: number;
     maxDecodeWidth?: number;
     contrast?: number;
@@ -38,6 +38,7 @@ export default function CodeScanner(props: CodeScannerProps) {
     let canvas: HTMLCanvasElement | undefined;
     let ctx: CanvasRenderingContext2D | null = null;
     let timer: number | undefined;
+    let currentDeviceId: string | null = null;
 
     // Downscale for performance
     let busy = false;
@@ -86,19 +87,15 @@ export default function CodeScanner(props: CodeScannerProps) {
         } catch (err) {
             if (!(err instanceof NotFoundException)) {
                 // appToast.error(err instanceof Error ? err.message : String(err));
-                props.onError(err instanceof Error ? err : new Error(String(err)));
+                props.onError(err);
             }
         } finally {
             busy = false;
         }
     };
 
-    const startStream = async (deviceId: string | null) => {
-        if (timer) clearInterval(timer);
-        const oldStream = videoRef?.srcObject as MediaStream | null;
-        oldStream?.getTracks().forEach((t) => t.stop());
-
-        const stream = await navigator.mediaDevices.getUserMedia({
+    const getStream = (deviceId: string | null) =>
+        navigator.mediaDevices.getUserMedia({
             video: deviceId
                 ? {
                       deviceId: { exact: deviceId },
@@ -113,13 +110,43 @@ export default function CodeScanner(props: CodeScannerProps) {
                       facingMode: "environment",
                   },
         });
+
+    const applyStream = (stream: MediaStream, requestedDeviceId: string | null) => {
         if (videoRef) videoRef.srcObject = stream;
+        currentDeviceId =
+            stream.getVideoTracks()[0]?.getSettings().deviceId ?? requestedDeviceId;
         timer = window.setInterval(tick, finalProps.interval);
+    };
+
+    const startStream = async (deviceId: string | null) => {
+        const previousDeviceId = currentDeviceId;
+        const oldStream = videoRef?.srcObject as MediaStream | null;
+        if (timer) clearInterval(timer);
+        oldStream?.getTracks().forEach((t) => t.stop());
+
+        try {
+            applyStream(await getStream(deviceId), deviceId);
+        } catch (error) {
+            if (previousDeviceId) {
+                try {
+                    applyStream(await getStream(previousDeviceId), previousDeviceId);
+                } catch {
+                    // Keep the original switch error if the old camera cannot be restored.
+                }
+            }
+            throw error;
+        }
     };
 
     onMount(async () => {
         canvas = document.createElement("canvas");
         ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!navigator.mediaDevices?.getUserMedia) {
+            props.onError(
+                Object.assign(new Error("Camera API unavailable"), { name: "NotSupportedError" }),
+            );
+            return;
+        }
         try {
             const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
             setDevices(videoInputDevices);
@@ -129,15 +156,33 @@ export default function CodeScanner(props: CodeScannerProps) {
                 videoInputDevices[0]?.deviceId ??
                 null;
             await startStream(defaultId);
+            setDevices(
+                await BrowserMultiFormatReader.listVideoInputDevices().catch(
+                    () => videoInputDevices,
+                ),
+            );
         } catch (err) {
             // appToast.error("Could not access camera devices.");
-            props.onError(err instanceof Error ? err : new Error(String(err)));
+            props.onError(err);
         }
     });
 
-    const handleDeviceChange = (deviceId: string) => {
-        startStream(deviceId);
-        setLastDeviceId(deviceId);
+    const handleDeviceChange = async (deviceId: string) => {
+        try {
+            await startStream(deviceId);
+            setLastDeviceId(deviceId);
+        } catch (err) {
+            props.onError(err);
+        }
+    };
+
+    const getCameraLabel = (device: MediaDeviceInfo) => {
+        const label = device.label.trim();
+        const normalized = label.toLowerCase();
+        if (/\b(front|user|facetime)\b/.test(normalized)) return t("camera.front");
+        if (/\b(back|rear|environment)\b/.test(normalized)) return t("camera.back");
+        if (/\b(external|usb)\b/.test(normalized)) return t("camera.external");
+        return label || t("camera.cameraLabel", { id: device.deviceId.slice(0, 6) });
     };
 
     onCleanup(() => {
@@ -186,11 +231,11 @@ export default function CodeScanner(props: CodeScannerProps) {
                     </div>
                     <For each={devices()}>
                         {(device) => (
-                            <button class="btn" onClick={() => handleDeviceChange(device.deviceId)}>
-                                {device.label ||
-                                    t("camera.cameraLabel", {
-                                        id: device.deviceId.slice(0, 6),
-                                    })}
+                            <button
+                                class="btn"
+                                onClick={() => void handleDeviceChange(device.deviceId)}
+                            >
+                                {getCameraLabel(device)}
                             </button>
                         )}
                     </For>

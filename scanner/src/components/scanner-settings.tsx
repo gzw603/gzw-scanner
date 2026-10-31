@@ -1,26 +1,16 @@
-import AboutApp from "core/components/about-app";
 import ResetApp from "core/components/reset-app";
 import { Settings, type SettingSection } from "core/components/settings";
 import { t, preferredLocale, setPreferredLocale, type LocalePreference } from "core/i18n";
-import { deviceId, deviceName, setDeviceName } from "core/stores/device";
-import { maxHistoryLength, setMaxHistoryLength } from "core/stores/history";
-import { AUTO_ACTION_OPTIONS, type AutoAction } from "core/utils/input-events";
+import { deviceName, setDeviceName } from "core/stores/device";
 import { createMemo, untrack } from "solid-js";
 import {
-    autoAction,
     camBrightness,
     camContrast,
-    scanPrefix,
     scanRatio,
-    scanSuffix,
-    setAutoAction,
     setCamBrightness,
     setCamContrast,
-    setScanPrefix,
     setScanRatio,
-    setScanSuffix,
 } from "@/stores/scanner-settings";
-import { ScanMarkerHelp, ShortcutSettings } from "@/components/scanner-input-extras";
 
 export default function ScannerSettings() {
     const sections = createMemo<SettingSection[]>(() => [
@@ -46,70 +36,6 @@ export default function ScannerSettings() {
                     type: "input",
                     value: untrack(deviceName),
                     onChange: setDeviceName,
-                },
-                {
-                    id: "device-id",
-                    label: t("settings.deviceId"),
-                    type: "input",
-                    readOnly: true,
-                    value: untrack(deviceId),
-                    onChange: () => void {},
-                },
-            ],
-        },
-        {
-            title: t("scanInput.title"),
-            description: t("scanInput.description"),
-            settings: [
-                {
-                    id: "scan-prefix",
-                    label: t("scanInput.prefix"),
-                    description: t("scanInput.prefixDescription"),
-                    type: "input",
-                    value: untrack(scanPrefix),
-                    onChange: setScanPrefix,
-                },
-                {
-                    id: "scan-suffix",
-                    label: t("scanInput.suffix"),
-                    description: t("scanInput.suffixDescription"),
-                    type: "input",
-                    value: untrack(scanSuffix),
-                    onChange: setScanSuffix,
-                },
-                {
-                    id: "scan-auto-action",
-                    label: t("scanInput.autoAction"),
-                    description: t("scanInput.autoActionDescription"),
-                    type: "select",
-                    value: untrack(autoAction),
-                    onChange: (value) => setAutoAction(value as AutoAction),
-                    options: AUTO_ACTION_OPTIONS.map((option) => ({
-                        value: option.value,
-                        label: t(option.labelKey),
-                    })),
-                },
-            ],
-        },
-        {
-            title: t("shortcuts.title"),
-            settings: [
-                {
-                    id: "shortcut-buttons",
-                    type: "custom",
-                    position: "stacked",
-                    render: () => <ShortcutSettings />,
-                },
-            ],
-        },
-        {
-            title: t("scanInput.markersTitle"),
-            settings: [
-                {
-                    id: "scan-markers",
-                    type: "custom",
-                    position: "stacked",
-                    render: () => <ScanMarkerHelp />,
                 },
             ],
         },
@@ -159,19 +85,6 @@ export default function ScannerSettings() {
             title: t("settings.advanced"),
             settings: [
                 {
-                    id: "history-length",
-                    label: t("settings.historyLength"),
-                    description: t("settings.historyLengthDescription"),
-                    type: "slider",
-                    position: "inline",
-                    min: 50,
-                    max: 500,
-                    step: 10,
-                    value: untrack(maxHistoryLength),
-                    onChange: setMaxHistoryLength,
-                    displayValue: () => t("settings.entries", { count: maxHistoryLength() }),
-                },
-                {
                     id: "reset-app",
                     label: t("settings.resetApp"),
                     type: "custom",
@@ -180,29 +93,14 @@ export default function ScannerSettings() {
                 },
             ],
         },
-        {
-            title: t("settings.about"),
-            settings: [
-                {
-                    id: "about",
-                    type: "custom",
-                    position: "inline",
-                    render: () => (
-                        <AboutApp
-                            appName={t("app.name")}
-                            appSuperName={t("role.scanner")}
-                            shortDescription={t("about.scannerDescription")}
-                            version={import.meta.env.VITE_APP_VERSION}
-                            logo={import.meta.env.BASE_URL + "logoR192.png"}
-                            license="MIT"
-                            licenseUrl="https://github.com/gzw603/gzw-scanner/blob/main/LICENSE"
-                            githubUrl="https://github.com/gzw603/gzw-scanner"
-                        />
-                    ),
-                },
-            ],
-        },
     ]);
 
-    return <Settings sections={sections()} />;
+    return (
+        <div class="space-y-4">
+            <p class="rounded-box bg-base-200 p-3 text-sm text-base-content/70">
+                {t("settings.desktopManagedHint")}
+            </p>
+            <Settings sections={sections()} />
+        </div>
+    );
 }

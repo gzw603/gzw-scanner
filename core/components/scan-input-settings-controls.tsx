@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
-import { t } from "core/i18n";
-import { normalizeKeyCombo } from "core/utils/input-events";
-import { shortcutButtons, updateShortcutButton } from "@/stores/scanner-settings";
+import { t } from "../i18n";
+import { normalizeKeyCombo } from "../utils/input-events";
+import { shortcutButtons, updateShortcutButton } from "../stores/scan-input-settings";
 
 export function ShortcutSettings() {
     return (

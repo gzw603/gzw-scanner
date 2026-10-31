@@ -1,3 +1,5 @@
+export type NameLocale = "zh" | "en";
+
 const ADJ = [
     "Swift",
     "Calm",
@@ -103,6 +105,111 @@ const NOUN = [
     "Yak",
 ];
 
+const ZH_ADJ = [
+    "迅捷",
+    "沉着",
+    "明亮",
+    "安静",
+    "大胆",
+    "晴朗",
+    "机灵",
+    "温和",
+    "勇敢",
+    "幸运",
+    "欢快",
+    "敏捷",
+    "狡黠",
+    "温暖",
+    "清凉",
+    "自由",
+    "灵巧",
+    "无畏",
+    "沉默",
+    "辉煌",
+    "冰晶",
+    "迅速",
+    "健壮",
+    "友善",
+    "闪耀",
+    "暴风",
+    "果敢",
+    "睿智",
+    "勇猛",
+    "活泼",
+    "稳重",
+    "好奇",
+];
+
+const ZH_COLOR = [
+    "琥珀",
+    "天蓝",
+    "珊瑚",
+    "绯红",
+    "翡翠",
+    "金色",
+    "靛蓝",
+    "象牙",
+    "青玉",
+    "黑曜",
+    "珍珠",
+    "红宝石",
+    "蓝宝石",
+    "银色",
+    "青绿",
+    "紫罗兰",
+    "猩红",
+    "钴蓝",
+    "绿松石",
+    "铜色",
+    "青铜",
+    "丁香",
+    "洋红",
+    "薄荷",
+    "赭石",
+    "石板",
+    "乌木",
+    "玫瑰",
+    "黄玉",
+    "蔚蓝",
+    "栗红",
+    "橄榄",
+];
+
+const ZH_NOUN = [
+    "水獭",
+    "猎鹰",
+    "熊猫",
+    "狐狸",
+    "狼",
+    "鹰",
+    "熊",
+    "猞猁",
+    "鹭鸟",
+    "獾",
+    "渡鸦",
+    "鹿",
+    "猫头鹰",
+    "海豹",
+    "仙鹤",
+    "驼鹿",
+    "老虎",
+    "兔子",
+    "野牛",
+    "美洲狮",
+    "海豚",
+    "雕",
+    "壁虎",
+    "美洲豹",
+    "考拉",
+    "豹",
+    "貂",
+    "一角鲸",
+    "虎鲸",
+    "黑豹",
+    "海龟",
+    "牦牛",
+];
+
 // FNV-1a hash, good enough for name-picking, not for anything security-sensitive
 const hash = (s: string) => {
     let h = 2166136261;
@@ -113,7 +220,17 @@ const hash = (s: string) => {
     return h >>> 0;
 };
 
-export const nameFromId = (id: string) => {
+export const nameFromId = (id: string, locale: NameLocale = "en") => {
     const h = hash(id);
+    if (locale === "zh") {
+        return `${ZH_ADJ[h & 31]}的${ZH_COLOR[(h >>> 5) & 31]}${ZH_NOUN[(h >>> 10) & 31]}`;
+    }
     return `${ADJ[h & 31]} ${COLOR[(h >>> 5) & 31]} ${NOUN[(h >>> 10) & 31]}`;
+};
+
+export const localizeDeviceName = (id: string, name: string, locale: NameLocale) => {
+    if (name === nameFromId(id, "en") || name === nameFromId(id, "zh")) {
+        return nameFromId(id, locale);
+    }
+    return name;
 };
