@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Gzw Scanner shared code",
   "main": "index.ts",
   "scripts": {
