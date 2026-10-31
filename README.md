@@ -14,6 +14,7 @@ Scan with your phone, type on your PC. Open the scanner PWA on your phone and ru
 - 可配置前缀、后缀和扫码后的自动按键。
 - 扫码输入、快捷键按钮和内容标记在电脑端设置，连接后自动同步到手机。
 - 可在电脑端锁定目标窗口，扫码时自动切回该窗口。
+- Windows 输入被系统拦截时，自动尝试浏览器/控件兼容输入并显示实际原因。
 - 扫码历史保留完整事件，可精确重发。
 - 中英文界面，默认跟随系统语言，可手动切换。
 - WebRTC 点对点传输，不经过业务服务器中转。
@@ -77,7 +78,7 @@ pnpm --filter scanner dev
 
 ## 技术栈 / Stack
 
-- Windows 接收端：Tauri 2 + SolidJS + Rust + enigo
+- Windows 接收端：Tauri 2 + SolidJS + Rust + Windows `SendInput`
 - 手机扫码端：SolidJS PWA + ZXing
 - 通信：PeerJS / WebRTC
 - 共享代码：`core/`

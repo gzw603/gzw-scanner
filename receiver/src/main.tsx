@@ -12,6 +12,7 @@ import { createEffect, untrack } from "solid-js";
 type InputReport = {
     targetTitle: string;
     restoredFocus: boolean;
+    compatibilityMode: boolean;
 };
 
 const router = createRouter({
@@ -35,7 +36,10 @@ onData((_conn, data) => {
         void invoke<InputReport>("fire_input_events", { events: data.events })
             .then((report) => {
                 const target = report.targetTitle.trim() || t("receiver.unknownTarget");
-                appToast.success(t("receiver.inputSuccess", { target }), {
+                const message = report.compatibilityMode
+                    ? t("receiver.compatibilityInputSuccess", { target })
+                    : t("receiver.inputSuccess", { target });
+                appToast.success(message, {
                     duration: report.restoredFocus ? 3200 : 1800,
                 });
             })
@@ -49,7 +53,10 @@ onData((_conn, data) => {
         void invoke<InputReport>("fire_input_events", { events })
             .then((report) => {
                 const target = report.targetTitle.trim() || t("receiver.unknownTarget");
-                appToast.success(t("receiver.inputSuccess", { target }), {
+                const message = report.compatibilityMode
+                    ? t("receiver.compatibilityInputSuccess", { target })
+                    : t("receiver.inputSuccess", { target });
+                appToast.success(message, {
                     duration: report.restoredFocus ? 3200 : 1800,
                 });
             })

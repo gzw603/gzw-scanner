@@ -1,8 +1,10 @@
-use enigo::{Direction, Enigo, Key, Keyboard, Settings};
 use serde::{Deserialize, Serialize};
+
+mod input;
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 enum InputEvent {
     Text { value: String },
     Key { combo: String },
@@ -13,6 +15,7 @@ enum InputEvent {
 struct InputReport {
     target_title: String,
     restored_focus: bool,
+    compatibility_mode: bool,
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -22,6 +25,7 @@ struct WindowTarget {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 enum Modifier {
     Ctrl,
     Alt,
@@ -30,11 +34,13 @@ enum Modifier {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 struct KeyCombo {
     modifiers: Vec<Modifier>,
     main_key: String,
 }
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn normalize_main_key(value: &str) -> Option<String> {
     let lower = value.to_ascii_lowercase();
     if lower.len() == 1 && lower.as_bytes()[0].is_ascii_alphabetic() {
@@ -73,11 +79,16 @@ fn normalize_main_key(value: &str) -> Option<String> {
     Some(key.to_string())
 }
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn parse_combo(combo: &str) -> Result<KeyCombo, String> {
     let mut modifiers = Vec::new();
     let mut main_key = None;
 
-    for part in combo.split('+').map(str::trim).filter(|part| !part.is_empty()) {
+    for part in combo
+        .split('+')
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+    {
         let modifier = match part.to_ascii_lowercase().as_str() {
             "ctrl" | "control" => Some(Modifier::Ctrl),
             "alt" | "option" => Some(Modifier::Alt),
@@ -108,99 +119,21 @@ fn parse_combo(combo: &str) -> Result<KeyCombo, String> {
         return Err("Ctrl+Alt+Delete is reserved by Windows".to_string());
     }
 
-    Ok(KeyCombo { modifiers, main_key })
-}
-
-fn modifier_key(modifier: &Modifier) -> Key {
-    match modifier {
-        Modifier::Ctrl => Key::Control,
-        Modifier::Alt => Key::Alt,
-        Modifier::Shift => Key::Shift,
-        Modifier::Win => Key::Meta,
-    }
-}
-
-fn main_key(value: &str) -> Option<Key> {
-    match value {
-        "Up" => Some(Key::UpArrow),
-        "Down" => Some(Key::DownArrow),
-        "Left" => Some(Key::LeftArrow),
-        "Right" => Some(Key::RightArrow),
-        "Home" => Some(Key::Home),
-        "End" => Some(Key::End),
-        "PageUp" => Some(Key::PageUp),
-        "PageDown" => Some(Key::PageDown),
-        "Esc" => Some(Key::Escape),
-        "Backspace" => Some(Key::Backspace),
-        "Delete" => Some(Key::Delete),
-        "Insert" => Some(Key::Other(0x2D)),
-        "Space" => Some(Key::Space),
-        "Enter" => Some(Key::Return),
-        "Tab" => Some(Key::Tab),
-        "F1" => Some(Key::F1),
-        "F2" => Some(Key::F2),
-        "F3" => Some(Key::F3),
-        "F4" => Some(Key::F4),
-        "F5" => Some(Key::F5),
-        "F6" => Some(Key::F6),
-        "F7" => Some(Key::F7),
-        "F8" => Some(Key::F8),
-        "F9" => Some(Key::F9),
-        "F10" => Some(Key::F10),
-        "F11" => Some(Key::F11),
-        "F12" => Some(Key::F12),
-        value if value.len() == 1 => {
-            value.chars().next().map(|character| Key::Other(character as u32))
-        }
-        _ => None,
-    }
-}
-
-fn fire_combo(enigo: &mut Enigo, combo: &str) -> Result<(), String> {
-    let parsed = parse_combo(combo)?;
-    let main = main_key(&parsed.main_key)
-        .ok_or_else(|| format!("Unsupported key: {}", parsed.main_key))?;
-    let mut pressed = Vec::new();
-
-    let result = (|| {
-        for modifier in &parsed.modifiers {
-            let key = modifier_key(modifier);
-            enigo
-                .key(key, Direction::Press)
-                .map_err(|error| format!("Could not press modifier: {error}"))?;
-            pressed.push(key);
-        }
-
-        enigo
-            .key(main, Direction::Click)
-            .map_err(|error| format!("Could not press key: {error}"))
-    })();
-
-    for key in pressed.into_iter().rev() {
-        let _ = enigo.key(key, Direction::Release);
-    }
-
-    result
+    Ok(KeyCombo {
+        modifiers,
+        main_key,
+    })
 }
 
 #[tauri::command]
 fn fire_input_events(events: Vec<InputEvent>) -> Result<InputReport, String> {
     let (target_title, restored_focus) = focus::prepare_target()?;
-    let mut enigo = Enigo::new(&Settings::default())
-        .map_err(|error| format!("Could not initialize keyboard input: {error}"))?;
-
-    for event in events {
-        match event {
-            InputEvent::Text { value } => enigo
-                .text(&value)
-                .map_err(|error| format!("Could not type text: {error}"))?,
-            InputEvent::Key { combo } => fire_combo(&mut enigo, &combo)?,
-        }
-    }
+    let compatibility_mode = input::fire(events)?;
 
     Ok(InputReport {
         target_title,
         restored_focus,
+        compatibility_mode,
     })
 }
 
@@ -262,6 +195,11 @@ mod focus {
     }
 
     pub fn clear_target() {}
+
+    #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+    pub fn is_admin() -> bool {
+        false
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -298,6 +236,11 @@ mod focus {
     #[link(name = "kernel32")]
     extern "system" {
         fn GetCurrentProcessId() -> u32;
+    }
+
+    #[link(name = "shell32")]
+    extern "system" {
+        fn IsUserAnAdmin() -> i32;
     }
 
     fn window_text(window: Hwnd) -> String {
@@ -432,6 +375,10 @@ mod focus {
 
     pub fn clear_target() {
         LOCKED_TARGET.store(0, Ordering::Relaxed);
+    }
+
+    pub fn is_admin() -> bool {
+        unsafe { IsUserAnAdmin() != 0 }
     }
 
     pub fn prepare_target() -> Result<(String, bool), String> {

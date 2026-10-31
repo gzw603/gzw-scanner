@@ -141,6 +141,7 @@ const en = {
     "receiver.scanners.linkNewDevice": "Link new device",
     "receiver.inputError": "Could not send input: {error}",
     "receiver.inputSuccess": "Input sent to: {target}",
+    "receiver.compatibilityInputSuccess": "Input sent using compatibility mode to: {target}",
     "receiver.unknownTarget": "Unknown window",
     "conn.noIdTitle": "No connection ID",
     "conn.noIdDescription": "This page needs a receiver ID in the URL to connect.",
@@ -198,7 +199,7 @@ const en = {
     "errors.network": "Network connection failed. Check your connection and retry.",
     "errors.browserUnsupported": "This browser does not support the required WebRTC features.",
     "errors.webrtc": "WebRTC connection failed. Check your network and retry.",
-    "errors.inputBlocked": "Windows blocked simulated input. Run Gzw Scanner as administrator and try again.",
+    "errors.inputInjectionFailed": "Windows rejected simulated input ({details}). Gzw Scanner also tried a compatibility method. If the target field still stays empty, send this message to the developer.",
     "errors.noInputTarget": "No external input window is focused. Click the target input field, then scan again.",
     "errors.focusRestoreFailed": "Could not restore the previous input window. Click the target input field, then scan again.",
     "errors.lockedTargetUnavailable": "The locked window was closed or is unavailable. Select a target window again.",
@@ -350,6 +351,7 @@ const zh: Record<MessageKey, string> = {
     "receiver.scanners.linkNewDevice": "连接新设备",
     "receiver.inputError": "输入发送失败：{error}",
     "receiver.inputSuccess": "已输入到：{target}",
+    "receiver.compatibilityInputSuccess": "已通过兼容输入发送到：{target}",
     "receiver.unknownTarget": "未知窗口",
     "conn.noIdTitle": "缺少连接 ID",
     "conn.noIdDescription": "此页面需要在网址中提供接收端 ID 才能连接。",
@@ -407,7 +409,7 @@ const zh: Record<MessageKey, string> = {
     "errors.network": "网络连接失败，请检查网络后重试。",
     "errors.browserUnsupported": "当前浏览器不支持所需的 WebRTC 功能。",
     "errors.webrtc": "WebRTC 连接失败，请检查网络后重试。",
-    "errors.inputBlocked": "Windows 阻止了模拟输入。请以管理员身份运行 Gzw Scanner 后重试。",
+    "errors.inputInjectionFailed": "Windows 拒绝了模拟输入（{details}）。Gzw Scanner 已尝试兼容输入；如果目标输入框仍然为空，请把这条提示截图反馈。",
     "errors.noInputTarget": "当前焦点在 Gzw Scanner 上，没有可输入的外部窗口。请先点击网页输入框，再扫码。",
     "errors.focusRestoreFailed": "无法切回上一次的输入窗口。请先点击网页输入框，再扫码。",
     "errors.lockedTargetUnavailable": "已锁定的窗口已关闭或不可用，请重新选择目标窗口。",
@@ -504,8 +506,13 @@ export const localizeError = (error: unknown) => {
 
     if (message === "Already connected") return t("errors.alreadyConnected");
     if (message === "Connection timed out") return t("errors.connectionTimeout");
-    if (message.includes("UIPI") || message.includes("not all input events were sent")) {
-        return t("errors.inputBlocked");
+    if (message.startsWith("INPUT_SEND_FAILED:")) {
+        return t("errors.inputInjectionFailed", {
+            details: message.slice("INPUT_SEND_FAILED:".length).trim(),
+        });
+    }
+    if (message.includes("INPUT_UNSUPPORTED")) {
+        return t("errors.inputInjectionFailed", { details: "Windows only" });
     }
     if (message.includes("NO_INPUT_TARGET")) {
         return t("errors.noInputTarget");
