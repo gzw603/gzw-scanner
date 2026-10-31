@@ -1,11 +1,24 @@
 use enigo::{Direction, Enigo, Key, Keyboard, Settings};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 enum InputEvent {
     Text { value: String },
     Key { combo: String },
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InputReport {
+    target_title: String,
+    restored_focus: bool,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct WindowTarget {
+    id: String,
+    title: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -171,7 +184,8 @@ fn fire_combo(enigo: &mut Enigo, combo: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn fire_input_events(events: Vec<InputEvent>) -> Result<(), String> {
+fn fire_input_events(events: Vec<InputEvent>) -> Result<InputReport, String> {
+    let (target_title, restored_focus) = focus::prepare_target()?;
     let mut enigo = Enigo::new(&Settings::default())
         .map_err(|error| format!("Could not initialize keyboard input: {error}"))?;
 
@@ -184,16 +198,271 @@ fn fire_input_events(events: Vec<InputEvent>) -> Result<(), String> {
         }
     }
 
-    Ok(())
+    Ok(InputReport {
+        target_title,
+        restored_focus,
+    })
+}
+
+#[tauri::command]
+fn list_target_windows() -> Vec<WindowTarget> {
+    focus::list_targets()
+}
+
+#[tauri::command]
+fn lock_target_window(id: String) -> Result<WindowTarget, String> {
+    focus::lock_target(&id)
+}
+
+#[tauri::command]
+fn get_target_window() -> Option<WindowTarget> {
+    focus::locked_target()
+}
+
+#[tauri::command]
+fn clear_target_window() {
+    focus::clear_target();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    focus::start_tracker();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![fire_input_events])
+        .invoke_handler(tauri::generate_handler![
+            fire_input_events,
+            list_target_windows,
+            lock_target_window,
+            get_target_window,
+            clear_target_window
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(not(target_os = "windows"))]
+mod focus {
+    pub fn start_tracker() {}
+
+    pub fn prepare_target() -> Result<(String, bool), String> {
+        Ok(("".to_string(), false))
+    }
+
+    pub fn list_targets() -> Vec<super::WindowTarget> {
+        Vec::new()
+    }
+
+    pub fn lock_target(_id: &str) -> Result<super::WindowTarget, String> {
+        Err("WINDOW_TARGET_UNSUPPORTED".to_string())
+    }
+
+    pub fn locked_target() -> Option<super::WindowTarget> {
+        None
+    }
+
+    pub fn clear_target() {}
+}
+
+#[cfg(target_os = "windows")]
+mod focus {
+    use super::WindowTarget;
+    use std::ffi::c_void;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::thread;
+    use std::time::Duration;
+
+    type Hwnd = *mut c_void;
+    type Lparam = isize;
+    type EnumWindowsProc = Option<unsafe extern "system" fn(Hwnd, Lparam) -> i32>;
+
+    const SW_RESTORE: i32 = 9;
+
+    static LAST_EXTERNAL_WINDOW: AtomicUsize = AtomicUsize::new(0);
+    static LOCKED_TARGET: AtomicUsize = AtomicUsize::new(0);
+
+    #[link(name = "user32")]
+    extern "system" {
+        fn GetForegroundWindow() -> Hwnd;
+        fn GetWindowThreadProcessId(window: Hwnd, process_id: *mut u32) -> u32;
+        fn GetWindowTextW(window: Hwnd, text: *mut u16, max_count: i32) -> i32;
+        fn GetClassNameW(window: Hwnd, class_name: *mut u16, max_count: i32) -> i32;
+        fn IsWindow(window: Hwnd) -> i32;
+        fn IsWindowVisible(window: Hwnd) -> i32;
+        fn IsIconic(window: Hwnd) -> i32;
+        fn ShowWindow(window: Hwnd, command: i32) -> i32;
+        fn SetForegroundWindow(window: Hwnd) -> i32;
+        fn EnumWindows(callback: EnumWindowsProc, lparam: Lparam) -> i32;
+    }
+
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn GetCurrentProcessId() -> u32;
+    }
+
+    fn window_text(window: Hwnd) -> String {
+        let mut buffer = [0u16; 512];
+        let length = unsafe { GetWindowTextW(window, buffer.as_mut_ptr(), buffer.len() as i32) };
+        if length <= 0 {
+            return String::new();
+        }
+        String::from_utf16_lossy(&buffer[..length as usize])
+    }
+
+    fn window_class(window: Hwnd) -> String {
+        let mut buffer = [0u16; 256];
+        let length = unsafe { GetClassNameW(window, buffer.as_mut_ptr(), buffer.len() as i32) };
+        if length <= 0 {
+            return String::new();
+        }
+        String::from_utf16_lossy(&buffer[..length as usize])
+    }
+
+    fn is_own_window(window: Hwnd) -> bool {
+        let mut process_id = 0;
+        unsafe { GetWindowThreadProcessId(window, &mut process_id) };
+        process_id == unsafe { GetCurrentProcessId() }
+    }
+
+    fn is_shell_window(window: Hwnd) -> bool {
+        matches!(
+            window_class(window).as_str(),
+            "Progman" | "WorkerW" | "Shell_TrayWnd" | "Shell_SecondaryTrayWnd"
+        )
+    }
+
+    fn is_external_target(window: Hwnd) -> bool {
+        !window.is_null()
+            && !is_own_window(window)
+            && !is_shell_window(window)
+            && unsafe { IsWindowVisible(window) } != 0
+    }
+
+    fn target_for(window: Hwnd) -> WindowTarget {
+        WindowTarget {
+            id: (window as usize).to_string(),
+            title: window_text(window),
+        }
+    }
+
+    fn focus_window(window: Hwnd) -> Result<String, String> {
+        if !is_external_target(window) {
+            LOCKED_TARGET.store(0, Ordering::Relaxed);
+            return Err("LOCKED_TARGET_UNAVAILABLE".to_string());
+        }
+
+        if unsafe { GetForegroundWindow() } != window {
+            if unsafe { IsIconic(window) } != 0 {
+                unsafe { ShowWindow(window, SW_RESTORE) };
+            }
+            unsafe { SetForegroundWindow(window) };
+            thread::sleep(Duration::from_millis(180));
+        }
+
+        if unsafe { GetForegroundWindow() } != window {
+            return Err("FOCUS_RESTORE_FAILED".to_string());
+        }
+
+        Ok(window_text(window))
+    }
+
+    unsafe extern "system" fn collect_window(window: Hwnd, lparam: Lparam) -> i32 {
+        if is_external_target(window) {
+            let title = window_text(window).trim().to_string();
+            if !title.is_empty() {
+                let targets = &mut *(lparam as *mut Vec<WindowTarget>);
+                targets.push(WindowTarget {
+                    id: (window as usize).to_string(),
+                    title,
+                });
+            }
+        }
+        1
+    }
+
+    pub fn start_tracker() {
+        thread::spawn(|| loop {
+            let window = unsafe { GetForegroundWindow() };
+            if is_external_target(window) {
+                LAST_EXTERNAL_WINDOW.store(window as usize, Ordering::Relaxed);
+            }
+            thread::sleep(Duration::from_millis(120));
+        });
+    }
+
+    pub fn list_targets() -> Vec<WindowTarget> {
+        let mut targets: Vec<WindowTarget> = Vec::new();
+        unsafe {
+            EnumWindows(
+                Some(collect_window),
+                &mut targets as *mut Vec<WindowTarget> as Lparam,
+            );
+        }
+        targets.sort_by_key(|target| target.title.to_lowercase());
+        targets.truncate(100);
+        targets
+    }
+
+    pub fn lock_target(id: &str) -> Result<WindowTarget, String> {
+        let id = id
+            .parse::<usize>()
+            .map_err(|_| "INVALID_WINDOW_TARGET".to_string())?;
+        let window = id as Hwnd;
+        if !is_external_target(window) {
+            return Err("INVALID_WINDOW_TARGET".to_string());
+        }
+
+        LOCKED_TARGET.store(id, Ordering::Relaxed);
+        Ok(target_for(window))
+    }
+
+    pub fn locked_target() -> Option<WindowTarget> {
+        let id = LOCKED_TARGET.load(Ordering::Relaxed);
+        if id == 0 {
+            return None;
+        }
+
+        let window = id as Hwnd;
+        if !is_external_target(window) {
+            LOCKED_TARGET.store(0, Ordering::Relaxed);
+            return None;
+        }
+        Some(target_for(window))
+    }
+
+    pub fn clear_target() {
+        LOCKED_TARGET.store(0, Ordering::Relaxed);
+    }
+
+    pub fn prepare_target() -> Result<(String, bool), String> {
+        let locked = LOCKED_TARGET.load(Ordering::Relaxed);
+        if locked != 0 {
+            return focus_window(locked as Hwnd).map(|title| (title, true));
+        }
+
+        let foreground = unsafe { GetForegroundWindow() };
+        if is_external_target(foreground) {
+            return Ok((window_text(foreground), false));
+        }
+
+        let previous = LAST_EXTERNAL_WINDOW.load(Ordering::Relaxed) as Hwnd;
+        if previous.is_null() || unsafe { IsWindow(previous) } == 0 {
+            return Err("NO_INPUT_TARGET".to_string());
+        }
+
+        if unsafe { IsIconic(previous) } != 0 {
+            unsafe { ShowWindow(previous, SW_RESTORE) };
+        }
+        unsafe { SetForegroundWindow(previous) };
+        thread::sleep(Duration::from_millis(180));
+
+        let restored = unsafe { GetForegroundWindow() };
+        if restored != previous || !is_external_target(restored) {
+            return Err("FOCUS_RESTORE_FAILED".to_string());
+        }
+
+        Ok((window_text(restored), true))
+    }
 }
 
 #[cfg(test)]

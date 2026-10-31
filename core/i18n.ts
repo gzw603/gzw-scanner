@@ -45,6 +45,24 @@ const en = {
     "settings.contrast": "Contrast",
     "settings.brightness": "Brightness",
     "settings.resetApp": "Reset App",
+    "targetWindow.title": "Input Target",
+    "targetWindow.description": "Lock a window to receive scans, or follow whichever window is currently focused.",
+    "targetWindow.followCurrent": "Following the current foreground window",
+    "targetWindow.current": "Locked window: {title}",
+    "targetWindow.hint": "After locking, click the input field in that window once. Later scans will switch back to it automatically. Restarting the receiver clears the lock.",
+    "targetWindow.select": "Select Target Window",
+    "targetWindow.change": "Change Target Window",
+    "targetWindow.clear": "Unlock",
+    "targetWindow.cleared": "Target window unlocked",
+    "targetWindow.locked": "Target locked: {title}",
+    "targetWindow.loadFailed": "Could not list windows: {error}",
+    "targetWindow.lockFailed": "Could not lock the target window: {error}",
+    "targetWindow.selectTitle": "Select Target Window",
+    "targetWindow.selectDescription": "Choose the window that should receive scanned text and keys.",
+    "targetWindow.refresh": "Refresh",
+    "targetWindow.loading": "Loading windows...",
+    "targetWindow.empty": "No selectable windows found. Open the target window and refresh.",
+    "targetWindow.desktopOnly": "Window selection is available in the Windows desktop receiver, not in a browser preview.",
     "reset.title": "Reset App",
     "reset.confirmPrefix": "Are you sure you want to",
     "reset.confirmReset": "reset",
@@ -122,6 +140,8 @@ const en = {
     "receiver.scanners.addDevice": "Add device",
     "receiver.scanners.linkNewDevice": "Link new device",
     "receiver.inputError": "Could not send input: {error}",
+    "receiver.inputSuccess": "Input sent to: {target}",
+    "receiver.unknownTarget": "Unknown window",
     "conn.noIdTitle": "No connection ID",
     "conn.noIdDescription": "This page needs a receiver ID in the URL to connect.",
     "conn.connectingTitle": "Connecting...",
@@ -179,6 +199,11 @@ const en = {
     "errors.browserUnsupported": "This browser does not support the required WebRTC features.",
     "errors.webrtc": "WebRTC connection failed. Check your network and retry.",
     "errors.inputBlocked": "Windows blocked simulated input. Run Gzw Scanner as administrator and try again.",
+    "errors.noInputTarget": "No external input window is focused. Click the target input field, then scan again.",
+    "errors.focusRestoreFailed": "Could not restore the previous input window. Click the target input field, then scan again.",
+    "errors.lockedTargetUnavailable": "The locked window was closed or is unavailable. Select a target window again.",
+    "errors.invalidWindowTarget": "That window can no longer receive input. Select another target window.",
+    "errors.windowTargetUnsupported": "Window locking is only available in the Windows receiver.",
     "errors.unexpected": "An unexpected error occurred",
     "route.notFoundTitle": "Page not found",
     "route.notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
@@ -229,6 +254,24 @@ const zh: Record<MessageKey, string> = {
     "settings.contrast": "对比度",
     "settings.brightness": "亮度",
     "settings.resetApp": "重置应用",
+    "targetWindow.title": "输入目标",
+    "targetWindow.description": "锁定接收扫码内容的窗口；未锁定时跟随当前前台窗口。",
+    "targetWindow.followCurrent": "当前跟随前台窗口",
+    "targetWindow.current": "已锁定窗口：{title}",
+    "targetWindow.hint": "锁定后，请先在该窗口的输入框中点击一次；之后扫码会自动切回这个窗口。接收端重启后需重新选择。",
+    "targetWindow.select": "选择目标窗口",
+    "targetWindow.change": "更换目标窗口",
+    "targetWindow.clear": "取消锁定",
+    "targetWindow.cleared": "已取消目标窗口锁定",
+    "targetWindow.locked": "已锁定：{title}",
+    "targetWindow.loadFailed": "无法读取窗口列表：{error}",
+    "targetWindow.lockFailed": "无法锁定目标窗口：{error}",
+    "targetWindow.selectTitle": "选择目标窗口",
+    "targetWindow.selectDescription": "选择要接收扫码文本和按键的窗口。",
+    "targetWindow.refresh": "刷新",
+    "targetWindow.loading": "正在读取窗口...",
+    "targetWindow.empty": "没有找到可选择的窗口，请打开目标窗口后刷新。",
+    "targetWindow.desktopOnly": "窗口选择仅在 Windows 桌面接收端中可用，浏览器预览页面无法使用。",
     "reset.title": "重置应用",
     "reset.confirmPrefix": "确定要",
     "reset.confirmReset": "重置",
@@ -306,6 +349,8 @@ const zh: Record<MessageKey, string> = {
     "receiver.scanners.addDevice": "添加设备",
     "receiver.scanners.linkNewDevice": "连接新设备",
     "receiver.inputError": "输入发送失败：{error}",
+    "receiver.inputSuccess": "已输入到：{target}",
+    "receiver.unknownTarget": "未知窗口",
     "conn.noIdTitle": "缺少连接 ID",
     "conn.noIdDescription": "此页面需要在网址中提供接收端 ID 才能连接。",
     "conn.connectingTitle": "正在连接...",
@@ -363,6 +408,11 @@ const zh: Record<MessageKey, string> = {
     "errors.browserUnsupported": "当前浏览器不支持所需的 WebRTC 功能。",
     "errors.webrtc": "WebRTC 连接失败，请检查网络后重试。",
     "errors.inputBlocked": "Windows 阻止了模拟输入。请以管理员身份运行 Gzw Scanner 后重试。",
+    "errors.noInputTarget": "当前焦点在 Gzw Scanner 上，没有可输入的外部窗口。请先点击网页输入框，再扫码。",
+    "errors.focusRestoreFailed": "无法切回上一次的输入窗口。请先点击网页输入框，再扫码。",
+    "errors.lockedTargetUnavailable": "已锁定的窗口已关闭或不可用，请重新选择目标窗口。",
+    "errors.invalidWindowTarget": "该窗口已无法接收输入，请重新选择目标窗口。",
+    "errors.windowTargetUnsupported": "窗口锁定仅在 Windows 接收端中可用。",
     "errors.unexpected": "发生了意外错误",
     "route.notFoundTitle": "页面不存在",
     "route.notFoundDescription": "你访问的页面不存在或已被移动。",
@@ -456,6 +506,21 @@ export const localizeError = (error: unknown) => {
     if (message === "Connection timed out") return t("errors.connectionTimeout");
     if (message.includes("UIPI") || message.includes("not all input events were sent")) {
         return t("errors.inputBlocked");
+    }
+    if (message.includes("NO_INPUT_TARGET")) {
+        return t("errors.noInputTarget");
+    }
+    if (message.includes("FOCUS_RESTORE_FAILED")) {
+        return t("errors.focusRestoreFailed");
+    }
+    if (message.includes("LOCKED_TARGET_UNAVAILABLE")) {
+        return t("errors.lockedTargetUnavailable");
+    }
+    if (message.includes("INVALID_WINDOW_TARGET")) {
+        return t("errors.invalidWindowTarget");
+    }
+    if (message.includes("WINDOW_TARGET_UNSUPPORTED")) {
+        return t("errors.windowTargetUnsupported");
     }
     return message || t("errors.unexpected");
 };

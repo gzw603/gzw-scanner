@@ -15,6 +15,7 @@ import {
 } from "core/stores/scan-input-settings";
 import { AUTO_ACTION_OPTIONS, type AutoAction } from "core/utils/input-events";
 import { createMemo, untrack } from "solid-js";
+import TargetWindowSettings from "./target-window-settings";
 
 export default function ReceiverSettings() {
     const sections = createMemo<SettingSection[]>(() => [
@@ -48,6 +49,18 @@ export default function ReceiverSettings() {
                     readOnly: true,
                     value: untrack(deviceId),
                     onChange: () => void {},
+                },
+            ],
+        },
+        {
+            title: t("targetWindow.title"),
+            description: t("targetWindow.description"),
+            settings: [
+                {
+                    id: "target-window",
+                    type: "custom",
+                    position: "stacked",
+                    render: () => <TargetWindowSettings />,
                 },
             ],
         },
