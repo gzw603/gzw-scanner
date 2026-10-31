@@ -5,7 +5,6 @@ import { routeTree } from './routeTree.gen'
 const hashHistory = createHashHistory()
 
 const router = createRouter({
-  basepath: (import.meta.env.VITE_BASE_PATH || '').replace(/\/$/, '') || undefined,
   history: hashHistory,
   routeTree,
   defaultPreload: 'intent',
