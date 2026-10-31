@@ -68,6 +68,7 @@ const en = {
     "scan.cameraError": "Camera error: {error}",
     "scan.sendFailed": "Could not send to receiver: {error}",
     "scan.sent": "Sent to receiver",
+    "scan.successTitle": "Scan successful",
     "scan.notSent": "Not sent: receiver is not connected.",
     "scan.actions": "Key actions",
     "scan.space": "Space",
@@ -177,6 +178,7 @@ const en = {
     "errors.network": "Network connection failed. Check your connection and retry.",
     "errors.browserUnsupported": "This browser does not support the required WebRTC features.",
     "errors.webrtc": "WebRTC connection failed. Check your network and retry.",
+    "errors.inputBlocked": "Windows blocked simulated input. Run Gzw Scanner as administrator and try again.",
     "errors.unexpected": "An unexpected error occurred",
     "route.notFoundTitle": "Page not found",
     "route.notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
@@ -250,6 +252,7 @@ const zh: Record<MessageKey, string> = {
     "scan.cameraError": "摄像头错误：{error}",
     "scan.sendFailed": "发送到接收端失败：{error}",
     "scan.sent": "已发送到电脑",
+    "scan.successTitle": "扫描成功",
     "scan.notSent": "未发送：电脑端未连接。",
     "scan.actions": "按键操作",
     "scan.space": "空格",
@@ -359,6 +362,7 @@ const zh: Record<MessageKey, string> = {
     "errors.network": "网络连接失败，请检查网络后重试。",
     "errors.browserUnsupported": "当前浏览器不支持所需的 WebRTC 功能。",
     "errors.webrtc": "WebRTC 连接失败，请检查网络后重试。",
+    "errors.inputBlocked": "Windows 阻止了模拟输入。请以管理员身份运行 Gzw Scanner 后重试。",
     "errors.unexpected": "发生了意外错误",
     "route.notFoundTitle": "页面不存在",
     "route.notFoundDescription": "你访问的页面不存在或已被移动。",
@@ -450,6 +454,9 @@ export const localizeError = (error: unknown) => {
 
     if (message === "Already connected") return t("errors.alreadyConnected");
     if (message === "Connection timed out") return t("errors.connectionTimeout");
+    if (message.includes("UIPI") || message.includes("not all input events were sent")) {
+        return t("errors.inputBlocked");
+    }
     return message || t("errors.unexpected");
 };
 
