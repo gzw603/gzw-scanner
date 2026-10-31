@@ -109,19 +109,19 @@
           </div>
           <div class="grid sm:grid-cols-2 gap-3">
             <a id="setup-download" class="btn btn-primary btn-lg h-auto py-4"
-              href="https://github.com/gzw603/gzw-scanner/releases/latest">
+              href="https://github.com/gzw603/gzw-scanner/releases/latest/download/Gzw-Scanner-Setup.exe">
               <i class="ti ti-download text-xl"></i>
               <span class="text-left">
                 <span class="block" data-en="Installer (Recommended)" data-zh="安装版（推荐）">安装版（推荐）</span>
-                <span class="block text-xs font-normal opacity-80">Gzw Scanner-Setup.exe</span>
+                <span class="block text-xs font-normal opacity-80">Gzw-Scanner-Setup.exe</span>
               </span>
             </a>
             <a id="portable-download" class="btn btn-outline btn-lg h-auto py-4"
-              href="https://github.com/gzw603/gzw-scanner/releases/latest">
+              href="https://github.com/gzw603/gzw-scanner/releases/latest/download/Gzw-Scanner-Portable.exe">
               <i class="ti ti-file-download text-xl"></i>
               <span class="text-left">
                 <span class="block" data-en="Portable EXE" data-zh="便携版 EXE">便携版 EXE</span>
-                <span class="block text-xs font-normal opacity-70">Gzw Scanner-Portable.exe</span>
+                <span class="block text-xs font-normal opacity-70">Gzw-Scanner-Portable.exe</span>
               </span>
             </a>
           </div>
@@ -278,8 +278,8 @@
         const release = await response.json();
         releaseTag = release.tag_name;
 
-        const setup = (release.assets || []).find((asset) => asset.name === "Gzw Scanner-Setup.exe");
-        const portable = (release.assets || []).find((asset) => asset.name === "Gzw Scanner-Portable.exe");
+        const setup = (release.assets || []).find((asset) => asset.name === "Gzw-Scanner-Setup.exe");
+        const portable = (release.assets || []).find((asset) => asset.name === "Gzw-Scanner-Portable.exe");
         document.getElementById("setup-download").href = setup?.browser_download_url || RELEASES_URL;
         document.getElementById("portable-download").href = portable?.browser_download_url || RELEASES_URL;
       } catch {

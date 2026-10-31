@@ -18,8 +18,8 @@ Scan with your phone, type on your PC. Open the scanner PWA on your phone and ru
 
 ## 下载 / Download
 
-- [Gzw Scanner-Setup.exe](https://github.com/gzw603/gzw-scanner/releases/latest)：推荐安装版，需要时会安装 WebView2。
-- [Gzw Scanner-Portable.exe](https://github.com/gzw603/gzw-scanner/releases/latest)：便携版，无需安装，但电脑仍需具备 WebView2。
+- [Gzw-Scanner-Setup.exe](https://github.com/gzw603/gzw-scanner/releases/latest/download/Gzw-Scanner-Setup.exe)：推荐安装版，需要时会安装 WebView2。
+- [Gzw-Scanner-Portable.exe](https://github.com/gzw603/gzw-scanner/releases/latest/download/Gzw-Scanner-Portable.exe)：便携版，无需安装，但电脑仍需具备 WebView2。
 - [手机扫码端](https://gzw603.github.io/gzw-scanner/scanner/)：直接在手机浏览器打开，可添加到主屏幕。
 
 Windows 10/11 x64。应用未使用代码签名证书，SmartScreen 可能显示警告；确认来源后选择“更多信息”→“仍要运行”。
