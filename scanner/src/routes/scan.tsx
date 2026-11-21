@@ -86,7 +86,6 @@ function RouteComponent() {
 
     const unlockAudioOnInteraction = () => unlockAudio();
 
-    let lastScannedCode = "";
     const scanPreview = (content: string) => {
         const singleLine = content.replace(/\s+/g, " ").trim();
         return singleLine.length > 80 ? `${singleLine.slice(0, 80)}…` : singleLine;
@@ -112,11 +111,6 @@ function RouteComponent() {
                 isConnecting = false;
             }
         } else {
-            // Ignore duplicate scans (until timeout ends)
-            if (code === lastScannedCode) return;
-            lastScannedCode = code;
-            setTimeout(() => (lastScannedCode = ""), 2500);
-
             if (!isConnected()) {
                 appToast.warning(t("scan.notSent"), {
                     id: "scan-result",

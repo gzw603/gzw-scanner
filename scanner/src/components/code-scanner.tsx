@@ -4,6 +4,7 @@ import { BrowserMultiFormatReader } from "@zxing/browser";
 import { NotFoundException } from "@zxing/library";
 import { createSignal, For, mergeProps, onCleanup, onMount, Show } from "solid-js";
 import { t } from "core/i18n";
+import { createScanDedupe } from "@/utils/scan-dedupe";
 
 interface CodeScannerProps {
     onResult: (text: string) => void;
@@ -39,6 +40,7 @@ export default function CodeScanner(props: CodeScannerProps) {
     let ctx: CanvasRenderingContext2D | null = null;
     let timer: number | undefined;
     let currentDeviceId: string | null = null;
+    const scanDedupe = createScanDedupe();
 
     // Downscale for performance
     let busy = false;
@@ -82,10 +84,12 @@ export default function CodeScanner(props: CodeScannerProps) {
         );
         try {
             const decodeResult = await codeReader.decodeFromCanvas(canvas);
-            // appToast.info(decodeResult.getText());
-            props.onResult(decodeResult.getText());
+            const text = decodeResult.getText();
+            if (scanDedupe.accept(text)) props.onResult(text);
         } catch (err) {
-            if (!(err instanceof NotFoundException)) {
+            if (err instanceof NotFoundException) {
+                scanDedupe.miss();
+            } else {
                 // appToast.error(err instanceof Error ? err.message : String(err));
                 props.onError(err);
             }
