@@ -3,7 +3,7 @@ import CodeScanner from "@/components/code-scanner";
 import { DeviceList } from "@/components/device-list";
 import { KeyActionBar } from "@/components/key-action-bar";
 import { createFileRoute } from "@tanstack/solid-router";
-import { IconCircleCheckFilled } from "@tabler/icons-solidjs";
+import { IconCircleCheckFilled, IconVolume } from "@tabler/icons-solidjs";
 import { connect, isConnected, lastPeerId, sendScan } from "core/stores/peer-connection";
 import { autoAction, scanPrefix, scanSuffix } from "core/stores/scan-input-settings";
 import { getDeviceIdFromUrl } from "core/utils/scanner-url";
@@ -20,12 +20,13 @@ function RouteComponent() {
     let isConnecting = false;
     const [isRestoring, setIsRestoring] = createSignal(Boolean(lastPeerId()) && !isConnected());
     const [successPreview, setSuccessPreview] = createSignal<string | null>(null);
+    const [audioReady, setAudioReady] = createSignal(false);
     let successTimer: number | undefined;
     let audioContext: AudioContext | undefined;
     let lastError = "";
     let lastErrorAt = 0;
 
-    const unlockAudio = () => {
+    const ensureAudio = () => {
         if (!audioContext) {
             try {
                 audioContext = new AudioContext();
@@ -33,13 +34,30 @@ function RouteComponent() {
                 return;
             }
         }
-        if (audioContext.state === "suspended") void audioContext.resume();
+        return audioContext;
     };
 
-    const playSuccessSound = () => {
-        unlockAudio();
-        if (!audioContext) return;
+    const resumeAudio = async () => {
+        const context = ensureAudio();
+        if (!context) {
+            setAudioReady(false);
+            return false;
+        }
+        if (context.state === "suspended") {
+            try {
+                await context.resume();
+            } catch {
+                setAudioReady(false);
+                return false;
+            }
+        }
+        const ready = context.state === "running";
+        setAudioReady(ready);
+        return ready;
+    };
 
+    const playBeep = () => {
+        if (!audioContext || audioContext.state !== "running") return;
         const now = audioContext.currentTime;
         const oscillator = audioContext.createOscillator();
         const gain = audioContext.createGain();
@@ -53,6 +71,20 @@ function RouteComponent() {
         oscillator.start(now);
         oscillator.stop(now + 0.12);
     };
+
+    const unlockAudio = (playTest = false) => {
+        void resumeAudio().then((ready) => {
+            if (ready && playTest) playBeep();
+        });
+    };
+
+    const playSuccessSound = () => {
+        void resumeAudio().then((ready) => {
+            if (ready) playBeep();
+        });
+    };
+
+    const unlockAudioOnInteraction = () => unlockAudio();
 
     let lastScannedCode = "";
     const scanPreview = (content: string) => {
@@ -108,7 +140,7 @@ function RouteComponent() {
                 playSuccessSound();
                 navigator.vibrate?.([30, 60, 30]);
                 if (successTimer) clearTimeout(successTimer);
-                successTimer = window.setTimeout(() => setSuccessPreview(null), 2600);
+                successTimer = window.setTimeout(() => setSuccessPreview(null), 2200);
             } catch (error) {
                 appToast.error(t("scan.sendFailed", { error: localizeError(error) }));
             }
@@ -124,7 +156,11 @@ function RouteComponent() {
     };
 
     onMount(() => {
-        window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+        setAudioReady(ensureAudio()?.state === "running");
+        window.addEventListener("pointerdown", unlockAudioOnInteraction, {
+            once: true,
+            passive: true,
+        });
         if (!isRestoring()) return;
         const target = lastPeerId();
         if (!target) {
@@ -165,14 +201,14 @@ function RouteComponent() {
 
     onCleanup(() => {
         appToast.dismiss("no-connection");
-        window.removeEventListener("pointerdown", unlockAudio);
+        window.removeEventListener("pointerdown", unlockAudioOnInteraction);
         if (successTimer) clearTimeout(successTimer);
         void audioContext?.close();
     });
 
     return (
         <div class="flex flex-col h-full">
-            <div class="min-h-0 flex-1">
+            <div class="relative min-h-0 flex-1">
                 <CodeScanner
                     onResult={handleScan}
                     onError={handleError}
@@ -180,6 +216,19 @@ function RouteComponent() {
                     contrast={camContrast()}
                     scanRatio={scanRatio()}
                 />
+                <Show when={!audioReady()}>
+                    <button
+                        type="button"
+                        class="btn btn-warning btn-sm absolute left-1/2 top-4 z-20 -translate-x-1/2 whitespace-nowrap shadow-lg"
+                        onPointerDown={(event) => {
+                            event.stopPropagation();
+                            unlockAudio(true);
+                        }}
+                    >
+                        <IconVolume class="size-4" />
+                        {t("scan.enableSound")}
+                    </button>
+                </Show>
             </div>
 
             <KeyActionBar />
