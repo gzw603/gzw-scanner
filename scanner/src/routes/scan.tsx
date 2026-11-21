@@ -43,15 +43,15 @@ function RouteComponent() {
         const now = audioContext.currentTime;
         const oscillator = audioContext.createOscillator();
         const gain = audioContext.createGain();
-        oscillator.type = "sine";
-        oscillator.frequency.setValueAtTime(880, now);
-        oscillator.frequency.exponentialRampToValueAtTime(1320, now + 0.12);
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(2720, now);
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.1, now + 0.004);
+        gain.gain.setValueAtTime(0.1, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
         oscillator.connect(gain).connect(audioContext.destination);
         oscillator.start(now);
-        oscillator.stop(now + 0.22);
+        oscillator.stop(now + 0.12);
     };
 
     let lastScannedCode = "";
