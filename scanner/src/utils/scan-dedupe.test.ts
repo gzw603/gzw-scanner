@@ -3,7 +3,7 @@ import { createScanDedupe } from "./scan-dedupe";
 
 describe("createScanDedupe", () => {
     it("emits once while the same code stays in view", () => {
-        const dedupe = createScanDedupe(800);
+        const dedupe = createScanDedupe(1000);
 
         expect(dedupe.accept("CODE")).toBe(true);
         expect(dedupe.accept("CODE")).toBe(false);
@@ -11,7 +11,7 @@ describe("createScanDedupe", () => {
     });
 
     it("allows the same code after it leaves the view", () => {
-        const dedupe = createScanDedupe(800);
+        const dedupe = createScanDedupe(1000);
 
         expect(dedupe.accept("CODE")).toBe(true);
         dedupe.miss(100);
@@ -19,12 +19,12 @@ describe("createScanDedupe", () => {
         expect(dedupe.accept("CODE")).toBe(false);
 
         dedupe.miss(800);
-        dedupe.miss(1600);
+        dedupe.miss(1800);
         expect(dedupe.accept("CODE")).toBe(true);
     });
 
     it("accepts a different code immediately", () => {
-        const dedupe = createScanDedupe(800);
+        const dedupe = createScanDedupe(1000);
 
         expect(dedupe.accept("CODE-A")).toBe(true);
         expect(dedupe.accept("CODE-B")).toBe(true);

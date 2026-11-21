@@ -1,4 +1,4 @@
-export const createScanDedupe = (clearAfterMs = 800) => {
+export const createScanDedupe = (clearAfterMs = 1000) => {
     let lastCode: string | null = null;
     let missingSince: number | null = null;
 
