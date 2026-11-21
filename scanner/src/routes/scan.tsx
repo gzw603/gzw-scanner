@@ -134,7 +134,7 @@ function RouteComponent() {
                 playSuccessSound();
                 navigator.vibrate?.([30, 60, 30]);
                 if (successTimer) clearTimeout(successTimer);
-                successTimer = window.setTimeout(() => setSuccessPreview(null), 2200);
+                successTimer = window.setTimeout(() => setSuccessPreview(null), 1500);
             } catch (error) {
                 appToast.error(t("scan.sendFailed", { error: localizeError(error) }));
             }
